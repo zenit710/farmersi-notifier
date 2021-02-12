@@ -1,0 +1,57 @@
+.page-wrapper {
+    max-width: 100%;
+    width: 600px;
+    margin: 0 auto;
+}
+
+.options-form {
+    margin: 30px 0;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.form-group__label {
+    width: 30%;
+}
+
+.form-group__field {
+    width: 70%;
+    border: none;
+    border-bottom: 1px solid black;
+    padding: 5px;
+    appearance: none;
+}
+
+.form-group__field:focus {
+    outline: none;
+}
+
+.submit {
+    border: 1px solid black;
+    background: black;
+    color: white;
+    padding: 10px 20px;
+    transition: .2s;
+    cursor: pointer;
+}
+
+.submit:hover {
+    background: white;
+    color: black;
+}
+
+.success {
+    display: none;
+}
+
+.success--show {
+    display: block;
+    border: 1px solid green;
+    color: green;
+    padding: 10px;
+    text-align: center;
+}

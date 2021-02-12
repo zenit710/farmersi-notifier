@@ -1,0 +1,37 @@
+.page-wrapper {
+    width: 300px;
+}
+
+.game-count {
+    font-weight: bold;
+}
+
+.action-required {
+    display: none;
+}
+
+.action-required--show {
+    display: block;
+}
+
+.no-settings {
+    display: none;
+}
+
+.no-settings--show {
+    display: block;
+}
+
+a {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 1px solid black;
+    color: black;
+    text-decoration: none;
+    transition: .2s;
+}
+
+a:hover {
+    background-color: black;
+    color: white;
+}

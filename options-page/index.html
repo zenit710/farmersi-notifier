@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css" />
+    <title>Farmersi Notifier - ustawienia</title>
+</head>
+<body>
+    <div class="page-wrapper">
+        <h1 class="title">
+            Farmersi Notifier
+        </h1>
+        <div class="info">
+            <p>Uzupełnij swoje dane, aby otrzymywać powiadomienia o oczekujących na Twoje decyzje grach.</p>
+            <p>Twoje dane (nazwa uzytkownika, hasło) nie są nigdzie wysyłane. Mozesz czuć się bezpiecznie.</p>
+            <p>
+                Mozesz skontaktować się ze mną
+                <a href="mailto:malek.kamil@outlook.com">mailowo</a>
+                jeśli masz jakieś pytanie lub pomysły.
+            </p>
+        </div>
+
+        <form class="options-form">
+            <div class="form-group">
+                <label for="nick" class="form-group__label">Nick</label>
+                <input type="text" class="form-group__field" placeholder="nick" id="nick" name="nick" />
+            </div>
+            <div class="form-group">
+                <label for="password" class="form-group__label">Hasło</label>
+                <input type="password" class="form-group__field" placeholder="hasło" id="password" name="password" />
+            </div>
+            <div class="form-group">
+                <label for="interval" class="form-group__label">Częstotliwość odświezania (min.)</label>
+                <input type="number" class="form-group__field" id="interval" name="interval" value="10" />
+            </div>
+
+            <input type="submit" class="submit" value="Zapisz ustawienia" />
+        </form>
+        
+        <div class="success">Ustawienia zostały zapisane!</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
