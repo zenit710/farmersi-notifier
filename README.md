@@ -1,5 +1,4 @@
 # Farmersi Notifier
-
 Simple Chrome Extension which gives the user notifications about games waiting for action.
 
 ## Development
@@ -15,6 +14,8 @@ To install local extension read [https://developer.chrome.com/docs/extensions/mv
 - `npm run lint:fix` to fix formatting errors
 
 ## TODO
-
 - add scss (?)
-- how we should store credentials
+
+## Contact
+
+Contact me via <zenit710@gmail.com>
