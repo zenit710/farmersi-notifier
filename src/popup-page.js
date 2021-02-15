@@ -1,8 +1,10 @@
-const SETTINGS_STORAGE_KEY = 'settings';
-const TO_PLAY_STORAGE_KEY = 'toPlay';
-
-const NICK_SETTING_KEY = 'nick';
-const PASSWORD_SETTING_KEY = 'password';
+import { getItemFromStorage, getSettingByKey } from './utils';
+import {
+    SETTINGS_STORAGE_KEY,
+    TO_PLAY_STORAGE_KEY,
+    NICK_SETTING_KEY,
+    PASSWORD_SETTING_KEY,
+} from './consts';
 
 const ACTION_REQUIRED_SELECTOR = '.action-required';
 const NO_SETTINGS_SELECTOR = '.no-settings';
@@ -12,9 +14,9 @@ const SETTINGS_PAGE_SELECTOR = '.settings-page-link';
 const ACTION_REQUIRED_SHOW_CLASS_NAME = 'action-required--show';
 const NO_SETTINGS_SHOW_CLASS_NAME = 'no-settings--show';
 
-chrome.storage.sync.get([SETTINGS_STORAGE_KEY, TO_PLAY_STORAGE_KEY], storage => {
-    const settings = storage[SETTINGS_STORAGE_KEY];
-    const toPlay = storage[TO_PLAY_STORAGE_KEY];
+const init = async () => {
+    const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+    const toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY);
     const username = getSettingByKey(settings, NICK_SETTING_KEY);
     const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
 
@@ -25,21 +27,11 @@ chrome.storage.sync.get([SETTINGS_STORAGE_KEY, TO_PLAY_STORAGE_KEY], storage => 
     } else {
         document.querySelector(NO_SETTINGS_SELECTOR).classList.add(NO_SETTINGS_SHOW_CLASS_NAME);
     }
-});
 
-const getSettingByKey = (settings, key) => {
-    let value = null;
-
-    try {
-        value = settings.find(item => item.key === key).value;
-    } catch (e) {
-        console.error(`Setting ${key} could not be read from settings`, e);
-    }
-
-    return value;
+    document.querySelector(SETTINGS_PAGE_SELECTOR).addEventListener('click', event => {
+        event.preventDefault();
+        chrome.runtime.openOptionsPage();
+    });
 };
 
-document.querySelector(SETTINGS_PAGE_SELECTOR).addEventListener('click', event => {
-    event.preventDefault();
-    chrome.runtime.openOptionsPage();
-});
+init();

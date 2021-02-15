@@ -2,10 +2,12 @@
 
 Simple Chrome Extension which gives the user notifications about games waiting for action.
 
-# TODO
+## Development
 
-- add webpack for development purposes - there are consts and methods used in different scripts, it would be nice to
-encapsulate them
+Run `npm run build`. To install local extension read [https://developer.chrome.com/docs/extensions/mv2/faq/#faq-dev-01]
+
+### TODO
+
 - add printer/linter/scss (?)
 - add google analytics
 - how we should store credentials

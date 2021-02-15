@@ -1,0 +1,28 @@
+{
+  "name": "farmersi-notifier",
+  "version": "1.0.0",
+  "description": "Waiting games notifications for farmersi.pl",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "webpack-cli": "^4.5.0",
+    "webpack": "^5.22.0"
+  },
+  "scripts": {
+    "build": "webpack --mode=production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zenit710/farmersi-notifier.git"
+  },
+  "keywords": [
+    "Farmersi",
+    "notification"
+  ],
+  "author": "Kamil Małek <zenit710@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zenit710/farmersi-notifier/issues"
+  },
+  "homepage": "https://github.com/zenit710/farmersi-notifier#readme"
+}

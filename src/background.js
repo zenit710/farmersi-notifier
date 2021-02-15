@@ -1,8 +1,17 @@
-const SETTINGS_STORAGE_KEY = 'settings';
-const TO_PLAY_STORAGE_KEY = 'toPlay';
-const NICK_SETTING_KEY = 'nick';
-const PASSWORD_SETTING_KEY = 'password';
-const INTERVAL_SETTING_KEY = 'interval';
+import {
+  getItemFromStorage,
+  setItemInStorage,
+  getSettingByKey,
+  sendNotification,
+} from './utils';
+import {
+  SETTINGS_STORAGE_KEY,
+  TO_PLAY_STORAGE_KEY,
+  NICK_SETTING_KEY,
+  PASSWORD_SETTING_KEY,
+  INTERVAL_SETTING_KEY,
+} from './consts';
+
 const LOGIN_PAGE = 'https://farmersi.pl/';
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -62,9 +71,7 @@ const checkGames = (user, password) => {
     const gameCount = actionNeededGames.length;
     const newGamesToPlay = actionNeededGames.filter(game => !toPlay.includes(game));
 
-    chrome.storage.sync.set({[TO_PLAY_STORAGE_KEY]: actionNeededGames}, function() {
-      console.log('Games to play saved in the store', actionNeededGames);
-    });
+    setItemInStorage(TO_PLAY_STORAGE_KEY, actionNeededGames);
 
     if (newGamesToPlay.length) {
       sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
@@ -80,44 +87,13 @@ const getLoginBody = (user, password) => {
   };
   const formData = new FormData();
 
-  for (param in bodyValues) formData.append(param, bodyValues[param]);
+  for (let param in bodyValues) formData.append(param, bodyValues[param]);
 
   return new URLSearchParams(formData).toString();
-};
-
-const getItemFromStorage = key => {
-  return new Promise(result => {
-    chrome.storage.sync.get(key, res => result(res[key]));
-  });
-};
-
-const sendNotification = message => {
-  const id = 'farmersi_notifier_' + Date.now();
-
-  chrome.notifications.create(id, {
-    title: 'Farmersi Notifier',
-    iconUrl: '/images/get_started16.png',
-    type: 'basic',
-    message,
-  }, () => {
-    console.log('Notification was send');
-  });
 };
 
 const handleNotificationClick = () => {
   chrome.notifications.onClicked.addListener(notificationId => {
     chrome.tabs.create({url: LOGIN_PAGE});
   });
-};
-
-const getSettingByKey = (settings, key) => {
-  let value = null;
-
-  try {
-    value = settings.find(item => item.key === key).value;
-  } catch (e) {
-    console.error(`Setting ${key} could not be read from settings`, e);
-  }
-
-  return value;
 };
