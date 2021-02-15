@@ -1,5 +1,6 @@
-import { getItemFromStorage, setItemInStorage } from "./utils";
+import { initAnalytics, trackEvent } from "./analytics";
 import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from "./consts";
+import { getItemFromStorage, setItemInStorage } from "./utils";
 
 const USERNAME_FIELD_ID = "nick";
 const INTERVAL_FIELD_ID = "interval";
@@ -33,6 +34,7 @@ const saveUserSettings = async settings => {
     const saved = await setItemInStorage(SETTINGS_STORAGE_KEY, settings);
 
     if (saved) {
+        trackEvent("user-settings", "set");
         document.querySelector(SUCCESS_SELECTOR).classList.add(SUCCESS_CLASS_NAME);
         chrome.runtime.reload();
     }
@@ -53,5 +55,6 @@ const handleFormInput = () => {
     });
 };
 
+initAnalytics();
 applyUserSettings();
 handleFormInput();

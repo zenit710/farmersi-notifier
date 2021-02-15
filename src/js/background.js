@@ -1,9 +1,4 @@
-import {
-    getItemFromStorage,
-    setItemInStorage,
-    getSettingByKey,
-    sendNotification,
-} from "./utils";
+import { initAnalytics, trackEvent } from "./analytics";
 import {
     SETTINGS_STORAGE_KEY,
     TO_PLAY_STORAGE_KEY,
@@ -11,10 +6,17 @@ import {
     PASSWORD_SETTING_KEY,
     INTERVAL_SETTING_KEY,
 } from "./consts";
+import {
+    getItemFromStorage,
+    setItemInStorage,
+    getSettingByKey,
+    sendNotification,
+} from "./utils";
 
 const LOGIN_PAGE = "https://farmersi.pl/";
 
 chrome.runtime.onInstalled.addListener(async () => {
+    initAnalytics();
     const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
 
     if (settings) {
@@ -38,6 +40,8 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 const checkGames = (user, password) => {
     const postData = getLoginBody(user, password);
+
+    trackEvent("check games", "fired");
 
     fetch(LOGIN_PAGE, {
         method: "POST",
@@ -96,6 +100,7 @@ const getLoginBody = (user, password) => {
 
 const handleNotificationClick = () => {
     chrome.notifications.onClicked.addListener(() => {
+        trackEvent("notification");
         chrome.tabs.create({url: LOGIN_PAGE});
     });
 };

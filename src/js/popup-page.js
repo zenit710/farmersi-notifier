@@ -1,3 +1,4 @@
+import { initAnalytics, trackEvent } from "./analytics";
 import { getItemFromStorage, getSettingByKey } from "./utils";
 import {
     SETTINGS_STORAGE_KEY,
@@ -30,8 +31,10 @@ const init = async () => {
 
     document.querySelector(SETTINGS_PAGE_SELECTOR).addEventListener("click", event => {
         event.preventDefault();
+        trackEvent("go-to-settings");
         chrome.runtime.openOptionsPage();
     });
 };
 
+initAnalytics();
 init();
