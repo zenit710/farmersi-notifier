@@ -13,6 +13,9 @@ To install local extension read [https://developer.chrome.com/docs/extensions/mv
 - `npm run lint` to check is file formatting correct
 - `npm run lint:fix` to fix formatting errors
 
+### Publishing
+`npm run publish` - extension code will be build and located in `build/farmersi-notifier.zip`
+
 ## TODO
 - add scss (?)
 
