@@ -31,10 +31,10 @@ chrome.runtime.onInstalled.addListener(async () => {
                 checkGames(user, password);
             }, interval);
         } else {
-            console.warn("Insufficient settings. Username, password and interval needed.");
+            console.log("Insufficient settings. Username, password and interval needed.");
         }
     } else {
-        console.warn("There is nothing we can do. No user settings available.");
+        console.log("There is nothing we can do. No user settings available.");
     }
 });
 
