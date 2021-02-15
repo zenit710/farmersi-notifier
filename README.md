@@ -8,6 +8,6 @@ Run `npm run build`. To install local extension read [https://developer.chrome.c
 
 ### TODO
 
-- add printer/linter/scss (?)
+- add scss (?)
 - add google analytics
 - how we should store credentials

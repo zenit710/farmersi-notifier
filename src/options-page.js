@@ -1,18 +1,18 @@
-import { getItemFromStorage, setItemInStorage } from './utils';
-import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from './consts';
+import { getItemFromStorage, setItemInStorage } from "./utils";
+import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from "./consts";
 
-const USERNAME_FIELD_ID = 'nick';
-const INTERVAL_FIELD_ID = 'interval';
-const FORM_SELECTOR = '.options-form';
-const SUCCESS_SELECTOR = '.success';
-const SUCCESS_CLASS_NAME = 'success--show';
+const USERNAME_FIELD_ID = "nick";
+const INTERVAL_FIELD_ID = "interval";
+const FORM_SELECTOR = ".options-form";
+const SUCCESS_SELECTOR = ".success";
+const SUCCESS_CLASS_NAME = "success--show";
 
 const DEFAULT_INTERVAL = 10;
 
 const applyUserSettings = async () => {
     const storedSettings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
     const settings = {
-        [NICK_SETTING_KEY]: '',
+        [NICK_SETTING_KEY]: "",
         [INTERVAL_SETTING_KEY]: DEFAULT_INTERVAL,
     };
 
@@ -21,7 +21,7 @@ const applyUserSettings = async () => {
             settings[NICK_SETTING_KEY] = storedSettings.find(item => item.key === NICK_SETTING_KEY).value;
             settings[INTERVAL_SETTING_KEY] = storedSettings.find(item => item.key === INTERVAL_SETTING_KEY).value;
         } catch (e) {
-            console.error('Settings could not be get from store', e);
+            console.error("Settings could not be get from store", e);
         }
     }
 
@@ -39,11 +39,11 @@ const saveUserSettings = async settings => {
 };
 
 const handleFormInput = () => {
-    document.querySelector(FORM_SELECTOR).addEventListener('submit', event => {
+    document.querySelector(FORM_SELECTOR).addEventListener("submit", event => {
         event.preventDefault();
 
-        const settings = [...event.target.querySelectorAll('input')]
-            .filter(input => input.type !== 'submit')
+        const settings = [...event.target.querySelectorAll("input")]
+            .filter(input => input.type !== "submit")
             .map(input => ({
                 key: input.name,
                 value: input.value,

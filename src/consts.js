@@ -1,8 +1,8 @@
-const SETTINGS_STORAGE_KEY = 'settings';
-const TO_PLAY_STORAGE_KEY = 'toPlay';
-const NICK_SETTING_KEY = 'nick';
-const PASSWORD_SETTING_KEY = 'password';
-const INTERVAL_SETTING_KEY = 'interval';
+const SETTINGS_STORAGE_KEY = "settings";
+const TO_PLAY_STORAGE_KEY = "toPlay";
+const NICK_SETTING_KEY = "nick";
+const PASSWORD_SETTING_KEY = "password";
+const INTERVAL_SETTING_KEY = "interval";
 
 export {
     SETTINGS_STORAGE_KEY,
