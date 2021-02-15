@@ -1,10 +1,10 @@
 module.exports = {
     entry: {
-        background: './src/background.js',
-        options: './src/options-page.js',
-        popup: './src/popup-page.js',
+        background: "./src/js/background.js",
+        options: "./src/js/options-page.js",
+        popup: "./src/js/popup-page.js",
     },
     output: {
-        path: __dirname + '/dist/js',
-    }
+        path: __dirname + "/dist/js",
+    },
 };

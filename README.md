@@ -4,9 +4,17 @@ Simple Chrome Extension which gives the user notifications about games waiting f
 
 ## Development
 
-Run `npm run build`. To install local extension read [https://developer.chrome.com/docs/extensions/mv2/faq/#faq-dev-01]
+### Build
+`npm run build`
 
-### TODO
+### Instalation
+To install local extension read [https://developer.chrome.com/docs/extensions/mv2/faq/#faq-dev-01]
+
+### Formatting
+- `npm run lint` to check is file formatting correct
+- `npm run lint:fix` to fix formatting errors
+
+## TODO
 
 - add scss (?)
 - add google analytics

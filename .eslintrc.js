@@ -1,15 +1,17 @@
 module.exports = {
     "env": {
         "browser": true,
-        "es2021": true
+        "es2021": true,
     },
     "extends": "eslint:recommended",
     "globals": {
         "chrome": "readonly",
+        "__dirname": "readonly",
+        "module": "writeable",
     },
     "parserOptions": {
         "ecmaVersion": 12,
-        "sourceType": "module"
+        "sourceType": "module",
     },
     "rules": {
         "brace-style": [
@@ -17,50 +19,54 @@ module.exports = {
             "1tbs",
         ],
         "comma-dangle": [
-            "error", 
-            "always-multiline"
+            "error",
+            "always-multiline",
         ],
         "comma-spacing": [
             "error",
             {
                 "before": false,
-                "after": true
-            }
+                "after": true,
+            },
+        ],
+        "curly": [
+            "error",
+            "all",
         ],
         "eol-last": [
             "error",
-            "always"
+            "always",
         ],
         "indent": [
             "error",
-            4
+            4,
         ],
         "linebreak-style": [
             "error",
-            "unix"
+            "unix",
         ],
         "max-len": [
             "error",
-            120
+            120,
         ],
         "no-multiple-empty-lines": [
             "error",
             {
                 "max": 1,
                 "maxEOF": 1,
-                "maxBOF": 0
-            }
+                "maxBOF": 0,
+            },
         ],
         "no-trailing-spaces": [
             "error",
         ],
         "quotes": [
             "error",
-            "double"
+            "double",
         ],
         "semi": [
             "error",
-            "always"
-        ]
-    }
+            "always",
+        ],
+    },
 };

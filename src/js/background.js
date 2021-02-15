@@ -87,7 +87,9 @@ const getLoginBody = (user, password) => {
     };
     const formData = new FormData();
 
-    for (let param in bodyValues) formData.append(param, bodyValues[param]);
+    for (let param in bodyValues) {
+        formData.append(param, bodyValues[param]);
+    }
 
     return new URLSearchParams(formData).toString();
 };
