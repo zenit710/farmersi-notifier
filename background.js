@@ -15,9 +15,9 @@ chrome.runtime.onInstalled.addListener(async () => {
 
     if (user && password && interval) {
       handleNotificationClick();
-      checkGames(settings);
+      checkGames(user, password);
       setInterval(() => {
-        checkGames(settings);
+        checkGames(user, password);
       }, interval);
     } else {
       console.warn('Insufficient settings. Username, password and interval needed.')
@@ -27,8 +27,8 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
-const checkGames = (settings) => {
-  const postData = getLoginBody(settings);
+const checkGames = (user, password) => {
+  const postData = getLoginBody(user, password);
 
   fetch(LOGIN_PAGE, {
     method: 'POST',
@@ -72,10 +72,10 @@ const checkGames = (settings) => {
   });
 };
 
-const getLoginBody = (settings) => {
+const getLoginBody = (user, password) => {
   const bodyValues = {
-    login: getSettingByKey(settings, NICK_SETTING_KEY),
-    password: getSettingByKey(settings, PASSWORD_SETTING_KEY),
+    login: user,
+    password: password,
     logowanie: 'zaloguj',
   };
   const formData = new FormData();
