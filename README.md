@@ -17,5 +17,4 @@ To install local extension read [https://developer.chrome.com/docs/extensions/mv
 ## TODO
 
 - add scss (?)
-- add google analytics
 - how we should store credentials
