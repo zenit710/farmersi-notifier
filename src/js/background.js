@@ -1,17 +1,17 @@
-import { initAnalytics, trackEvent } from "./analytics";
+import { initAnalytics, trackEvent } from "./shared/analytics";
 import {
     SETTINGS_STORAGE_KEY,
     TO_PLAY_STORAGE_KEY,
     NICK_SETTING_KEY,
     PASSWORD_SETTING_KEY,
     INTERVAL_SETTING_KEY,
-} from "./consts";
+} from "./shared/consts";
 import {
     getItemFromStorage,
     setItemInStorage,
     getSettingByKey,
     sendNotification,
-} from "./utils";
+} from "./shared/utils";
 
 const LOGIN_PAGE = "https://farmersi.pl/";
 

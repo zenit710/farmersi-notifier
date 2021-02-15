@@ -1,11 +1,12 @@
-import { initAnalytics, trackEvent } from "./analytics";
-import { getItemFromStorage, getSettingByKey } from "./utils";
+import { initAnalytics, trackEvent } from "./shared/analytics";
 import {
     SETTINGS_STORAGE_KEY,
     TO_PLAY_STORAGE_KEY,
     NICK_SETTING_KEY,
     PASSWORD_SETTING_KEY,
-} from "./consts";
+} from "./shared/consts";
+import { getItemFromStorage, getSettingByKey } from "./shared/utils";
+import "../scss/popup-page.scss";
 
 const ACTION_REQUIRED_SELECTOR = ".action-required";
 const NO_SETTINGS_SELECTOR = ".no-settings";

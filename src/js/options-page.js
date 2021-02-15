@@ -1,6 +1,7 @@
-import { initAnalytics, trackEvent } from "./analytics";
-import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from "./consts";
-import { getItemFromStorage, setItemInStorage } from "./utils";
+import { initAnalytics, trackEvent } from "./shared/analytics";
+import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from "./shared/consts";
+import { getItemFromStorage, setItemInStorage } from "./shared/utils";
+import "../scss/options-page.scss";
 
 const USERNAME_FIELD_ID = "nick";
 const INTERVAL_FIELD_ID = "interval";

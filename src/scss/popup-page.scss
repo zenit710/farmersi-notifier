@@ -1,0 +1,29 @@
+@import "./mixins";
+
+.page-wrapper {
+    width: 300px;
+}
+
+.game-count {
+    font-weight: bold;
+}
+
+.action-required {
+    display: none;
+
+    &--show {
+        display: block;
+    }
+}
+
+.no-settings {
+    display: none;
+
+    &--show {
+        display: block;
+    }
+}
+
+a {
+    @include button;
+}

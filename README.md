@@ -17,7 +17,7 @@ To install local extension read [https://developer.chrome.com/docs/extensions/mv
 `npm run publish` - extension code will be build and located in `build/farmersi-notifier.zip`
 
 ## TODO
-- add scss (?)
+- stylelint
 
 ## Contact
 

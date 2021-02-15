@@ -7,4 +7,16 @@ module.exports = {
     output: {
         path: __dirname + "/dist/js",
     },
+    module: {
+        rules: [
+            {
+                test: /\.scss$/i,
+                use: [
+                    "style-loader",
+                    "css-loader",
+                    "sass-loader",
+                ],
+            },
+        ],
+    },
 };

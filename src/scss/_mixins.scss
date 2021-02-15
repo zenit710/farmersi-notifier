@@ -1,0 +1,19 @@
+$c-primary: #000000;
+$c-secondary: #ffffff;
+$c-success: #00aa00;
+
+@mixin button {
+    display: inline-block;
+    border: 1px solid $c-primary;
+    background: $c-primary;
+    color: $c-secondary;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: .2s;
+    
+    &:hover {
+        background: $c-secondary;
+        color: $c-primary;
+    }
+};
