@@ -1,29 +1,29 @@
-@import "./mixins";
+@import './mixins';
 
 .page-wrapper {
-    width: 300px;
+  width: 300px;
 }
 
 .game-count {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .action-required {
-    display: none;
+  display: none;
 
-    &--show {
-        display: block;
-    }
+  &--show {
+    display: block;
+  }
 }
 
 .no-settings {
-    display: none;
+  display: none;
 
-    &--show {
-        display: block;
-    }
+  &--show {
+    display: block;
+  }
 }
 
 a {
-    @include button;
+  @include button;
 }

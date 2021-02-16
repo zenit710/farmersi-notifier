@@ -1,49 +1,49 @@
-@import "./mixins";
+@import './mixins';
 
 .page-wrapper {
-    max-width: 100%;
-    width: 600px;
-    margin: 0 auto;
+  margin: 0 auto;
+  max-width: 100%;
+  width: 600px;
 }
 
 .options-form {
-    margin: 30px 0;
+  margin: 30px 0;
 }
 
 .form-group {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
+  align-items: center;
+  display: flex;
+  margin: 10px 0;
 
-    &__label {
-        width: 30%;
+  &__label {
+    width: 30%;
+  }
+
+  &__field {
+    appearance: none;
+    border: 0;
+    border-bottom: 1px solid $c-primary;
+    padding: 5px;
+    width: 70%;
+
+    &:focus {
+      outline: none;
     }
-
-    &__field {
-        width: 70%;
-        border: none;
-        border-bottom: 1px solid $c-primary;
-        padding: 5px;
-        appearance: none;
-
-        &:focus {
-            outline: none;
-        }
-    }
+  }
 }
 
 .submit {
-    @include button;
+  @include button;
 }
 
 .success {
-    display: none;
+  display: none;
 
-    &--show {
-        display: block;
-        border: 1px solid $c-success;
-        color: $c-success;
-        padding: 10px;
-        text-align: center;
-    }
+  &--show {
+    border: 1px solid $c-success;
+    color: $c-success;
+    display: block;
+    padding: 10px;
+    text-align: center;
+  }
 }
