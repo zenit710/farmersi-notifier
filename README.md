@@ -3,6 +3,8 @@ Simple Chrome Extension which gives the user notifications about games waiting f
 
 ## Development
 
+After cloning repository run `npm install`
+
 ### Build
 `npm run build`
 
