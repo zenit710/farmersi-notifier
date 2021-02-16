@@ -30,7 +30,7 @@ const sendNotification = message => {
 
     chrome.notifications.create(id, {
         title: "Farmersi Notifier",
-        iconUrl: "images/logo-16.png",
+        iconUrl: "images/logo-128.png",
         type: "basic",
         message,
     }, () => {
