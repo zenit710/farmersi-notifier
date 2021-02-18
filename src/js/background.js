@@ -14,7 +14,7 @@ import {
     sendNotification,
 } from "./shared/utils";
 
-chrome.runtime.onInstalled.addListener(async () => {
+const init = async () => {
     initAnalytics();
     const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
 
@@ -35,7 +35,7 @@ chrome.runtime.onInstalled.addListener(async () => {
     } else {
         console.log("There is nothing we can do. No user settings available.");
     }
-});
+};
 
 const checkGames = (user, password) => {
     const postData = getLoginBody(user, password);
@@ -103,3 +103,10 @@ const handleNotificationClick = () => {
         chrome.tabs.create({url: FARMERSI_URL});
     });
 };
+
+chrome.runtime.onInstalled.addListener(() => {
+    trackEvent("extension-installed");
+    chrome.runtime.openOptionsPage();
+});
+
+init();
