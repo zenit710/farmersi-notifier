@@ -5,7 +5,7 @@ import {
     INTERVAL_SETTING_KEY,
     COMPLETE_SETTING_KEY,
 } from "./consts";
-import { getItemFromStorage } from "./utils";
+import { getItemFromStorage } from "./storage";
 
 let settingsCached;
 

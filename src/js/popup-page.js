@@ -1,7 +1,7 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
 import { TO_PLAY_STORAGE_KEY, FARMERSI_URL, COMPLETE_SETTING_KEY } from "./shared/consts";
 import { getSettings } from "./shared/settings";
-import { getItemFromStorage } from "./shared/utils";
+import { getItemFromStorage } from "./shared/storage";
 import "../scss/popup-page.scss";
 
 const ACTION_REQUIRED_SELECTOR = ".action-required";

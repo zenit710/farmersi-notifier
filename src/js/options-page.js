@@ -1,7 +1,7 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
 import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from "./shared/consts";
 import { getSettings } from "./shared/settings";
-import { setItemInStorage } from "./shared/utils";
+import { setItemInStorage } from "./shared/storage";
 import "../scss/options-page.scss";
 
 const USERNAME_FIELD_ID = "nick";
