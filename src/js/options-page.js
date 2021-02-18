@@ -35,7 +35,7 @@ const saveUserSettings = async settings => {
     const saved = await setItemInStorage(SETTINGS_STORAGE_KEY, settings);
 
     if (saved) {
-        trackEvent("user-settings", "set");
+        trackEvent("user-settings-set", "set");
         document.querySelector(SUCCESS_SELECTOR).classList.add(SUCCESS_CLASS_NAME);
         chrome.runtime.reload();
     }
