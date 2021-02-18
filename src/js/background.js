@@ -5,6 +5,7 @@ import {
     NICK_SETTING_KEY,
     PASSWORD_SETTING_KEY,
     INTERVAL_SETTING_KEY,
+    FARMERSI_URL,
 } from "./shared/consts";
 import {
     getItemFromStorage,
@@ -12,8 +13,6 @@ import {
     getSettingByKey,
     sendNotification,
 } from "./shared/utils";
-
-const LOGIN_PAGE = "https://farmersi.pl/";
 
 chrome.runtime.onInstalled.addListener(async () => {
     initAnalytics();
@@ -43,7 +42,7 @@ const checkGames = (user, password) => {
 
     trackEvent("check games", "fired");
 
-    fetch(LOGIN_PAGE, {
+    fetch(FARMERSI_URL, {
         method: "POST",
         mode: "no-cors",
         headers: {
@@ -100,7 +99,7 @@ const getLoginBody = (user, password) => {
 
 const handleNotificationClick = () => {
     chrome.notifications.onClicked.addListener(() => {
-        trackEvent("notification");
-        chrome.tabs.create({url: LOGIN_PAGE});
+        trackEvent("notification-click");
+        chrome.tabs.create({url: FARMERSI_URL});
     });
 };
