@@ -47,6 +47,11 @@ const getSettings = async () => {
     return settingsCached;
 };
 
+const clearSettingsCache = () => {
+    settingsCached = null;
+};
+
 export {
     getSettings,
+    clearSettingsCache,
 };

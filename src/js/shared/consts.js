@@ -8,6 +8,8 @@ const COMPLETE_SETTING_KEY = "complete";
 
 const FARMERSI_URL = "https://farmersi.pl/";
 
+const RESTART_MESSAGE_PROPERTY = "restart";
+
 export {
     SETTINGS_STORAGE_KEY,
     TO_PLAY_STORAGE_KEY,
@@ -16,4 +18,5 @@ export {
     INTERVAL_SETTING_KEY,
     COMPLETE_SETTING_KEY,
     FARMERSI_URL,
+    RESTART_MESSAGE_PROPERTY,
 };
