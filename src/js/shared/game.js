@@ -5,13 +5,15 @@ import { getSettings } from "./settings";
 import { getItemFromStorage, setItemInStorage } from "./storage";
 
 const checkGames = async () => {
-    const loginBody = await getLoginBody();
-
     trackEvent("check games", "fired");
-    fetchHomePage(loginBody, handleGameResponse);
+
+    const loginBody = await getLoginBody();
+    const response = await fetchHomePage(loginBody);
+
+    handleGameResponse(response);
 };
 
-const fetchHomePage = async (loginBody, callback, customOptions = {}) => {
+const fetchHomePage = async (loginBody, customOptions = {}) => {
     return fetch(FARMERSI_URL, {
         method: "POST",
         mode: "no-cors",
@@ -23,8 +25,11 @@ const fetchHomePage = async (loginBody, callback, customOptions = {}) => {
         body: loginBody,
         ...customOptions,
     }).then(
-        res => res.text().then(callback),
-        err => console.log("fetch error occured", err),
+        res => res.text(),
+        err => {
+            console.log("fetch error occured", err);
+            return "";
+        },
     );
 };
 
@@ -87,19 +92,20 @@ const areCredentialsOk = async (user, password) => {
             user,
             password,
         });
-        await fetchHomePage(loginBody, response => {
-            const html = document.createElement("html");
-            html.innerHTML = response;
-
-            const logout = html.querySelector("a[href*='?logout=1'");
-            console.log("logout", logout);
-            isOk = logout;
-        }, {
+        const response = await fetchHomePage(loginBody, {
             credentials: "omit",
         });
+        isOk = isUserLoggedIn(response);
     }
 
     return isOk;
+};
+
+const isUserLoggedIn = response => {
+    const html = document.createElement("html");
+    html.innerHTML = response;
+
+    return !!html.querySelector("a[href*='?logout=1'");
 };
 
 export {
