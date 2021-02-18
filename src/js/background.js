@@ -1,106 +1,73 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
-import {
-    SETTINGS_STORAGE_KEY,
-    TO_PLAY_STORAGE_KEY,
-    NICK_SETTING_KEY,
-    PASSWORD_SETTING_KEY,
-    INTERVAL_SETTING_KEY,
-} from "./shared/consts";
-import {
-    getItemFromStorage,
-    setItemInStorage,
-    getSettingByKey,
-    sendNotification,
-} from "./shared/utils";
+import { checkGames } from "./shared/game";
+import { FARMERSI_URL, COMPLETE_SETTING_KEY, INTERVAL_SETTING_KEY, RESTART_MESSAGE_PROPERTY } from "./shared/consts";
+import { getSettings, clearSettingsCache } from "./shared/settings";
 
-const LOGIN_PAGE = "https://farmersi.pl/";
+const CHECK_GAMES_ALARM_NAME = "check-games-alarm";
+const INSUFFICIENT_SETTINGS_MESSAGE = "Insufficient settings. Username, password and interval needed.";
+
+const init = async () => {
+    const settings = await getSettings();
+
+    if (settings[COMPLETE_SETTING_KEY]) {
+        checkGames();
+        setCheckGamesAlarm();
+    } else {
+        console.log(INSUFFICIENT_SETTINGS_MESSAGE);
+    }
+};
+
+const clean = () => {
+    clearSettingsCache();
+    removeCheckGamesAlarm();
+};
+
+const setCheckGamesAlarm = async () => {
+    const settings = await getSettings();
+
+    chrome.alarms.create(CHECK_GAMES_ALARM_NAME, {
+        delayInMinutes: settings[INTERVAL_SETTING_KEY],
+        periodInMinutes: settings[INTERVAL_SETTING_KEY],
+    });
+};
+
+const removeCheckGamesAlarm = () => {
+    chrome.alarms.clear(CHECK_GAMES_ALARM_NAME);
+};
 
 chrome.runtime.onInstalled.addListener(async () => {
-    initAnalytics();
-    const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+    trackEvent("extension-installed");
+    const settings = await getSettings();
 
-    if (settings) {
-        const user = getSettingByKey(settings, NICK_SETTING_KEY);
-        const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
-        const interval = parseInt(getSettingByKey(settings, INTERVAL_SETTING_KEY)) * 60 * 1000;
-
-        if (user && password && interval) {
-            handleNotificationClick();
-            checkGames(user, password);
-            setInterval(() => {
-                checkGames(user, password);
-            }, interval);
-        } else {
-            console.log("Insufficient settings. Username, password and interval needed.");
-        }
-    } else {
-        console.log("There is nothing we can do. No user settings available.");
+    if (!settings[COMPLETE_SETTING_KEY]) {
+        trackEvent("extension-installed-no-settings-available");
+        chrome.runtime.openOptionsPage();
     }
 });
 
-const checkGames = (user, password) => {
-    const postData = getLoginBody(user, password);
-
-    trackEvent("check games", "fired");
-
-    fetch(LOGIN_PAGE, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": postData.length,
-        },
-        body: postData,
-    }).then(res => res.text()).then(async response => {
-        const html = document.createElement("html");
-        html.innerHTML = response;
-
-        const games = html.querySelectorAll(".dwa a[href*='user.php?id_gra']");
-        const actionNeededGames = [];
-
-        if (games) {
-            games.forEach(game => {
-                if (
-                    game.nextElementSibling
-                && game.nextElementSibling.nextElementSibling
-                && game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje"
-                ) {
-                    actionNeededGames.push(game.textContent);
-                }
-            });
-        }
-
-        let toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY) || [];
-
-        const gameCount = actionNeededGames.length;
-        const newGamesToPlay = actionNeededGames.filter(game => !toPlay.includes(game));
-
-        setItemInStorage(TO_PLAY_STORAGE_KEY, actionNeededGames);
-
-        if (newGamesToPlay.length) {
-            sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
-        }
-    });
-};
-
-const getLoginBody = (user, password) => {
-    const bodyValues = {
-        login: user,
-        password: password,
-        logowanie: "zaloguj",
-    };
-    const formData = new FormData();
-
-    for (let param in bodyValues) {
-        formData.append(param, bodyValues[param]);
+chrome.runtime.onMessage.addListener(message => {
+    if (message[RESTART_MESSAGE_PROPERTY]) {
+        clean();
+        init();
     }
+});
 
-    return new URLSearchParams(formData).toString();
-};
+chrome.alarms.onAlarm.addListener(async alarm => {
+    if (alarm.name === CHECK_GAMES_ALARM_NAME) {
+        const settings = await getSettings();
 
-const handleNotificationClick = () => {
-    chrome.notifications.onClicked.addListener(() => {
-        trackEvent("notification");
-        chrome.tabs.create({url: LOGIN_PAGE});
-    });
-};
+        if (settings[COMPLETE_SETTING_KEY]) {
+            checkGames();
+        } else {
+            console.log(INSUFFICIENT_SETTINGS_MESSAGE);
+        }
+    }
+});
+
+chrome.notifications.onClicked.addListener(() => {
+    trackEvent("notification-click");
+    chrome.tabs.create({url: FARMERSI_URL});
+});
+
+initAnalytics();
+init();

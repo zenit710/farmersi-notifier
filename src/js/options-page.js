@@ -1,6 +1,12 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
-import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from "./shared/consts";
-import { getItemFromStorage, setItemInStorage } from "./shared/utils";
+import {
+    SETTINGS_STORAGE_KEY,
+    NICK_SETTING_KEY,
+    INTERVAL_SETTING_KEY,
+    RESTART_MESSAGE_PROPERTY,
+} from "./shared/consts";
+import { getSettings } from "./shared/settings";
+import { setItemInStorage } from "./shared/storage";
 import "../scss/options-page.scss";
 
 const USERNAME_FIELD_ID = "nick";
@@ -12,7 +18,7 @@ const SUCCESS_CLASS_NAME = "success--show";
 const DEFAULT_INTERVAL = 10;
 
 const applyUserSettings = async () => {
-    const storedSettings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+    const storedSettings = await getSettings();
     const settings = {
         [NICK_SETTING_KEY]: "",
         [INTERVAL_SETTING_KEY]: DEFAULT_INTERVAL,
@@ -20,8 +26,8 @@ const applyUserSettings = async () => {
 
     if (storedSettings) {
         try {
-            settings[NICK_SETTING_KEY] = storedSettings.find(item => item.key === NICK_SETTING_KEY).value;
-            settings[INTERVAL_SETTING_KEY] = storedSettings.find(item => item.key === INTERVAL_SETTING_KEY).value;
+            settings[NICK_SETTING_KEY] = storedSettings[NICK_SETTING_KEY];
+            settings[INTERVAL_SETTING_KEY] = storedSettings[INTERVAL_SETTING_KEY];
         } catch (e) {
             console.error("Settings could not be get from store", e);
         }
@@ -35,9 +41,9 @@ const saveUserSettings = async settings => {
     const saved = await setItemInStorage(SETTINGS_STORAGE_KEY, settings);
 
     if (saved) {
-        trackEvent("user-settings", "set");
+        trackEvent("user-settings-set", "set");
         document.querySelector(SUCCESS_SELECTOR).classList.add(SUCCESS_CLASS_NAME);
-        chrome.runtime.reload();
+        restartExtension();
     }
 };
 
@@ -54,6 +60,10 @@ const handleFormInput = () => {
 
         saveUserSettings(settings);
     });
+};
+
+const restartExtension = () => {
+    chrome.runtime.sendMessage({[RESTART_MESSAGE_PROPERTY]: true});
 };
 
 initAnalytics();
