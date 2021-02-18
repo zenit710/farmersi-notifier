@@ -5,25 +5,30 @@ import { getSettings } from "./settings";
 import { getItemFromStorage, setItemInStorage } from "./storage";
 
 const checkGames = async () => {
-    const postData = await getLoginBody();
+    const loginBody = await getLoginBody();
 
     trackEvent("check games", "fired");
+    fetchHomePage(loginBody, handleGameResponse);
+};
 
-    fetch(FARMERSI_URL, {
+const fetchHomePage = async (loginBody, callback, customOptions = {}) => {
+    return fetch(FARMERSI_URL, {
         method: "POST",
         mode: "no-cors",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": postData.length,
+            "Content-Length": loginBody.length,
         },
-        body: postData,
+        credentials: "omit",
+        body: loginBody,
+        ...customOptions,
     }).then(
-        res => res.text().then(handleResponse),
+        res => res.text().then(callback),
         err => console.log("fetch error occured", err),
     );
 };
 
-const handleResponse = async response => {
+const handleGameResponse = async response => {
     const html = document.createElement("html");
     html.innerHTML = response;
 
@@ -58,11 +63,11 @@ const isNeedingActionGame = game => game.nextElementSibling
     && game.nextElementSibling.nextElementSibling
     && game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje";
 
-const getLoginBody = async () => {
+const getLoginBody = async ({ user, password } = {}) => {
     const settings = await getSettings();
     const bodyValues = {
-        login: settings[NICK_SETTING_KEY],
-        password: settings[PASSWORD_SETTING_KEY],
+        login: user || settings[NICK_SETTING_KEY],
+        password: password || settings[PASSWORD_SETTING_KEY],
         logowanie: "zaloguj",
     };
     const formData = new FormData();
@@ -74,6 +79,30 @@ const getLoginBody = async () => {
     return new URLSearchParams(formData).toString();
 };
 
+const areCredentialsOk = async (user, password) => {
+    let isOk = false;
+
+    if (user && password) {
+        const loginBody = await getLoginBody({
+            user,
+            password,
+        });
+        await fetchHomePage(loginBody, response => {
+            const html = document.createElement("html");
+            html.innerHTML = response;
+
+            const logout = html.querySelector("a[href*='?logout=1'");
+            console.log("logout", logout);
+            isOk = logout;
+        }, {
+            credentials: "omit",
+        });
+    }
+
+    return isOk;
+};
+
 export {
     checkGames,
+    areCredentialsOk,
 };

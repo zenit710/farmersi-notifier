@@ -53,5 +53,6 @@ const clearSettingsCache = () => {
 
 export {
     getSettings,
+    getSettingByKey,
     clearSettingsCache,
 };

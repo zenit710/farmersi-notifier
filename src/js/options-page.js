@@ -4,16 +4,21 @@ import {
     NICK_SETTING_KEY,
     INTERVAL_SETTING_KEY,
     RESTART_MESSAGE_PROPERTY,
+    PASSWORD_SETTING_KEY,
 } from "./shared/consts";
-import { getSettings } from "./shared/settings";
+import { areCredentialsOk } from "./shared/game";
+import { getSettings, getSettingByKey } from "./shared/settings";
 import { setItemInStorage } from "./shared/storage";
 import "../scss/options-page.scss";
 
 const USERNAME_FIELD_ID = "nick";
 const INTERVAL_FIELD_ID = "interval";
 const FORM_SELECTOR = ".options-form";
-const SUCCESS_SELECTOR = ".success";
-const SUCCESS_CLASS_NAME = "success--show";
+const STATUS_SELECTOR = ".status";
+const SUCCESS_MESSAGE = "Ustawienia zostały zapisane!";
+const INVALID_CREDENTIALS_MESSAGE = "Nieprawidłowe dane logowania";
+const SUCCESS_CLASS_NAME = "status--success";
+const FAILURE_CLASS_NAME = "status--failure";
 
 const DEFAULT_INTERVAL = 10;
 
@@ -42,13 +47,13 @@ const saveUserSettings = async settings => {
 
     if (saved) {
         trackEvent("user-settings-set", "set");
-        document.querySelector(SUCCESS_SELECTOR).classList.add(SUCCESS_CLASS_NAME);
+        displayStatus(true);
         restartExtension();
     }
 };
 
 const handleFormInput = () => {
-    document.querySelector(FORM_SELECTOR).addEventListener("submit", event => {
+    document.querySelector(FORM_SELECTOR).addEventListener("submit", async event => {
         event.preventDefault();
 
         const settings = [...event.target.querySelectorAll("input")]
@@ -58,8 +63,23 @@ const handleFormInput = () => {
                 value: input.value,
             }));
 
-        saveUserSettings(settings);
+        const user = getSettingByKey(settings, NICK_SETTING_KEY);
+        const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
+        const credentialsOk = await areCredentialsOk(user, password);
+
+        if (credentialsOk) {
+            saveUserSettings(settings);
+        } else {
+            displayStatus(false);
+        }
     });
+};
+
+const displayStatus = (success = false) => {
+    const $status = document.querySelector(STATUS_SELECTOR);
+    $status.classList.remove(SUCCESS_CLASS_NAME, FAILURE_CLASS_NAME);
+    $status.classList.add(success ? SUCCESS_CLASS_NAME : FAILURE_CLASS_NAME);
+    $status.innerHTML = success ? SUCCESS_MESSAGE : INVALID_CREDENTIALS_MESSAGE;
 };
 
 const restartExtension = () => {
