@@ -13,34 +13,7 @@ const setItemInStorage = (key, value) => {
     });
 };
 
-const getSettingByKey = (settings, key) => {
-    let value = null;
-
-    try {
-        value = settings.find(item => item.key === key).value;
-    } catch (e) {
-        console.error(`Setting ${key} could not be read from settings`, e);
-    }
-
-    return value;
-};
-
-const sendNotification = message => {
-    const id = "farmersi_notifier_" + Date.now();
-
-    chrome.notifications.create(id, {
-        title: "Farmersi Notifier",
-        iconUrl: "images/logo-128.png",
-        type: "basic",
-        message,
-    }, () => {
-        console.log("Notification was send");
-    });
-};
-
 export {
     getItemFromStorage,
     setItemInStorage,
-    getSettingByKey,
-    sendNotification,
 };

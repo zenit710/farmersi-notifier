@@ -1,12 +1,7 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
-import {
-    SETTINGS_STORAGE_KEY,
-    TO_PLAY_STORAGE_KEY,
-    NICK_SETTING_KEY,
-    PASSWORD_SETTING_KEY,
-    FARMERSI_URL,
-} from "./shared/consts";
-import { getItemFromStorage, getSettingByKey } from "./shared/utils";
+import { TO_PLAY_STORAGE_KEY, FARMERSI_URL, COMPLETE_SETTING_KEY } from "./shared/consts";
+import { getSettings } from "./shared/settings";
+import { getItemFromStorage } from "./shared/utils";
 import "../scss/popup-page.scss";
 
 const ACTION_REQUIRED_SELECTOR = ".action-required";
@@ -19,12 +14,10 @@ const ACTION_REQUIRED_SHOW_CLASS_NAME = "action-required--show";
 const NO_SETTINGS_SHOW_CLASS_NAME = "no-settings--show";
 
 const init = async () => {
-    const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+    const settings = await getSettings();
     const toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY);
-    const username = getSettingByKey(settings, NICK_SETTING_KEY);
-    const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
 
-    if (username && password) {
+    if (settings[COMPLETE_SETTING_KEY]) {
         const gamesCount = Array.isArray(toPlay) ? toPlay.length : 0;
         document.querySelector(GAME_COUNT_SELECTOR).innerHTML = gamesCount;
         document.querySelector(ACTION_REQUIRED_SELECTOR).classList.add(ACTION_REQUIRED_SHOW_CLASS_NAME);
