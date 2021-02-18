@@ -1,5 +1,5 @@
 import { trackEvent } from "./analytics";
-import { FARMERSI_URL, TO_PLAY_STORAGE_KEY } from "./consts";
+import { FARMERSI_URL, NICK_SETTING_KEY, PASSWORD_SETTING_KEY, TO_PLAY_STORAGE_KEY } from "./consts";
 import { sendNotification } from "./notifications";
 import { getSettings } from "./settings";
 import { getItemFromStorage, setItemInStorage } from "./storage";
@@ -18,7 +18,7 @@ const checkGames = async () => {
         },
         body: postData,
     }).then(
-        res => res.text().then(response => handleResponse(response)),
+        res => res.text().then(handleResponse),
         err => console.log("fetch error occured", err),
     );
 };
@@ -61,8 +61,8 @@ const isNeedingActionGame = game => game.nextElementSibling
 const getLoginBody = async () => {
     const settings = await getSettings();
     const bodyValues = {
-        login: settings.user,
-        password: settings.password,
+        login: settings[NICK_SETTING_KEY],
+        password: settings[PASSWORD_SETTING_KEY],
         logowanie: "zaloguj",
     };
     const formData = new FormData();

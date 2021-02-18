@@ -1,6 +1,6 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
 import { checkGames } from "./shared/game";
-import { FARMERSI_URL, COMPLETE_SETTING_KEY } from "./shared/consts";
+import { FARMERSI_URL, COMPLETE_SETTING_KEY, INTERVAL_SETTING_KEY } from "./shared/consts";
 import { getSettings } from "./shared/settings";
 
 const CHECK_GAMES_ALARM_NAME = "check-games-alarm";
@@ -22,8 +22,8 @@ const setCheckGamesAlarm = async () => {
     const settings = await getSettings();
 
     chrome.alarms.create(CHECK_GAMES_ALARM_NAME, {
-        delayInMinutes: settings.interval,
-        periodInMinutes: settings.interval,
+        delayInMinutes: settings[INTERVAL_SETTING_KEY],
+        periodInMinutes: settings[INTERVAL_SETTING_KEY],
     });
 };
 
@@ -42,7 +42,7 @@ chrome.alarms.onAlarm.addListener(async alarm => {
         const settings = await getSettings();
 
         if (settings[COMPLETE_SETTING_KEY]) {
-            checkGames(settings.user, settings.password);
+            checkGames();
         } else {
             console.log(INSUFFICIENT_SETTINGS_MESSAGE);
         }
