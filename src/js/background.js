@@ -14,6 +14,8 @@ import {
     sendNotification,
 } from "./shared/utils";
 
+const CHECK_GAMES_ALARM_NAME = "check-games-alarm";
+
 const init = async () => {
     initAnalytics();
     const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
@@ -21,14 +23,15 @@ const init = async () => {
     if (settings) {
         const user = getSettingByKey(settings, NICK_SETTING_KEY);
         const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
-        const interval = parseInt(getSettingByKey(settings, INTERVAL_SETTING_KEY)) * 60 * 1000;
+        const interval = parseInt(getSettingByKey(settings, INTERVAL_SETTING_KEY));
 
         if (user && password && interval) {
-            handleNotificationClick();
             checkGames(user, password);
-            setInterval(() => {
-                checkGames(user, password);
-            }, interval);
+
+            chrome.alarms.create(CHECK_GAMES_ALARM_NAME, {
+                delayInMinutes: interval,
+                periodInMinutes: interval,
+            });
         } else {
             console.log("Insufficient settings. Username, password and interval needed.");
         }
@@ -61,8 +64,8 @@ const checkGames = (user, password) => {
             games.forEach(game => {
                 if (
                     game.nextElementSibling
-                && game.nextElementSibling.nextElementSibling
-                && game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje"
+                    && game.nextElementSibling.nextElementSibling
+                    && game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje"
                 ) {
                     actionNeededGames.push(game.textContent);
                 }
@@ -97,16 +100,33 @@ const getLoginBody = (user, password) => {
     return new URLSearchParams(formData).toString();
 };
 
-const handleNotificationClick = () => {
-    chrome.notifications.onClicked.addListener(() => {
-        trackEvent("notification-click");
-        chrome.tabs.create({url: FARMERSI_URL});
-    });
-};
-
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
     trackEvent("extension-installed");
-    chrome.runtime.openOptionsPage();
+
+    const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+
+    if (!settings) {
+        trackEvent("extension-installed-no-settings-available");
+        chrome.runtime.openOptionsPage();
+    }
+});
+
+chrome.alarms.onAlarm.addListener(async alarm => {
+    if (alarm.name === CHECK_GAMES_ALARM_NAME) {
+        const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+
+        if (settings) {
+            const user = getSettingByKey(settings, NICK_SETTING_KEY);
+            const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
+
+            checkGames(user, password);
+        }
+    }
+});
+
+chrome.notifications.onClicked.addListener(() => {
+    trackEvent("notification-click");
+    chrome.tabs.create({url: FARMERSI_URL});
 });
 
 init();

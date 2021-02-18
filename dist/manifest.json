@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Waiting games notifications for farmersi.pl",
   "permissions": [
+    "alarms",
     "notifications",
     "storage",
     "https://farmersi.pl/*"
