@@ -15,33 +15,24 @@ import {
 } from "./shared/utils";
 
 const CHECK_GAMES_ALARM_NAME = "check-games-alarm";
+const INSUFFICIENT_SETTINGS_MESSAGE = "Insufficient settings. Username, password and interval needed.";
+
+let settingsCached = null;
 
 const init = async () => {
     initAnalytics();
-    const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+    const settings = await getSettings();
 
-    if (settings) {
-        const user = getSettingByKey(settings, NICK_SETTING_KEY);
-        const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
-        const interval = parseInt(getSettingByKey(settings, INTERVAL_SETTING_KEY));
-
-        if (user && password && interval) {
-            checkGames(user, password);
-
-            chrome.alarms.create(CHECK_GAMES_ALARM_NAME, {
-                delayInMinutes: interval,
-                periodInMinutes: interval,
-            });
-        } else {
-            console.log("Insufficient settings. Username, password and interval needed.");
-        }
+    if (settings.complete) {
+        checkGames();
+        setCheckGamesAlarm();
     } else {
-        console.log("There is nothing we can do. No user settings available.");
+        console.log(INSUFFICIENT_SETTINGS_MESSAGE);
     }
 };
 
-const checkGames = (user, password) => {
-    const postData = getLoginBody(user, password);
+const checkGames = async () => {
+    const postData = await getLoginBody();
 
     trackEvent("check games", "fired");
 
@@ -53,42 +44,52 @@ const checkGames = (user, password) => {
             "Content-Length": postData.length,
         },
         body: postData,
-    }).then(res => res.text()).then(async response => {
-        const html = document.createElement("html");
-        html.innerHTML = response;
-
-        const games = html.querySelectorAll(".dwa a[href*='user.php?id_gra']");
-        const actionNeededGames = [];
-
-        if (games) {
-            games.forEach(game => {
-                if (
-                    game.nextElementSibling
-                    && game.nextElementSibling.nextElementSibling
-                    && game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje"
-                ) {
-                    actionNeededGames.push(game.textContent);
-                }
-            });
-        }
-
-        let toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY) || [];
-
-        const gameCount = actionNeededGames.length;
-        const newGamesToPlay = actionNeededGames.filter(game => !toPlay.includes(game));
-
-        setItemInStorage(TO_PLAY_STORAGE_KEY, actionNeededGames);
-
-        if (newGamesToPlay.length) {
-            sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
-        }
-    });
+    }).then(
+        res => res.text().then(response => handleResponse(response)),
+        err => console.log("fetch error occured", err),
+    );
 };
 
-const getLoginBody = (user, password) => {
+const handleResponse = async response => {
+    const html = document.createElement("html");
+    html.innerHTML = response;
+
+    const games = html.querySelectorAll(".dwa a[href*='user.php?id_gra']");
+    const actionNeedingGames = getNeedingActionGames(games);
+
+    let toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY) || [];
+
+    const gameCount = actionNeedingGames.length;
+    const newGamesToPlay = actionNeedingGames.filter(game => !toPlay.includes(game));
+
+    setItemInStorage(TO_PLAY_STORAGE_KEY, actionNeedingGames);
+
+    if (newGamesToPlay.length) {
+        sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
+    }
+};
+
+const getNeedingActionGames = games => {
+    const actionNeedingGames = [];
+
+    games.forEach(game => {
+        if (isNeedingActionGame(game)) {
+            actionNeedingGames.push(game.textContent);
+        }
+    });
+
+    return actionNeedingGames;
+};
+
+const isNeedingActionGame = game => game.nextElementSibling
+    && game.nextElementSibling.nextElementSibling
+    && game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje";
+
+const getLoginBody = async () => {
+    const settings = await getSettings();
     const bodyValues = {
-        login: user,
-        password: password,
+        login: settings.user,
+        password: settings.password,
         logowanie: "zaloguj",
     };
     const formData = new FormData();
@@ -100,12 +101,45 @@ const getLoginBody = (user, password) => {
     return new URLSearchParams(formData).toString();
 };
 
+const getSettings = async () => {
+    if (!settingsCached) {
+        console.log("get settings from storage");
+        settingsCached = await getSettingsFromStorage();
+    }
+
+    return settingsCached;
+};
+
+const getSettingsFromStorage = async() => {
+    const settings = {
+        complete: false,
+    };
+    const storedSettings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+
+    if (storedSettings) {
+        settings.user = getSettingByKey(storedSettings, NICK_SETTING_KEY);
+        settings.password = getSettingByKey(storedSettings, PASSWORD_SETTING_KEY);
+        settings.interval = parseInt(getSettingByKey(storedSettings, INTERVAL_SETTING_KEY));
+        settings.complete = settings.user && settings.password && settings.interval;
+    }
+
+    return settings;
+};
+
+const setCheckGamesAlarm = async () => {
+    const settings = await getSettings();
+
+    chrome.alarms.create(CHECK_GAMES_ALARM_NAME, {
+        delayInMinutes: settings.interval,
+        periodInMinutes: settings.interval,
+    });
+};
+
 chrome.runtime.onInstalled.addListener(async () => {
     trackEvent("extension-installed");
+    const settings = await getSettings();
 
-    const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
-
-    if (!settings) {
+    if (!settings.complete) {
         trackEvent("extension-installed-no-settings-available");
         chrome.runtime.openOptionsPage();
     }
@@ -113,13 +147,12 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 chrome.alarms.onAlarm.addListener(async alarm => {
     if (alarm.name === CHECK_GAMES_ALARM_NAME) {
-        const settings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+        const settings = await getSettings();
 
-        if (settings) {
-            const user = getSettingByKey(settings, NICK_SETTING_KEY);
-            const password = getSettingByKey(settings, PASSWORD_SETTING_KEY);
-
-            checkGames(user, password);
+        if (settings.complete) {
+            checkGames(settings.user, settings.password);
+        } else {
+            console.log(INSUFFICIENT_SETTINGS_MESSAGE);
         }
     }
 });
