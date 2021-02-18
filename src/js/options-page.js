@@ -1,6 +1,7 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
 import { SETTINGS_STORAGE_KEY, NICK_SETTING_KEY, INTERVAL_SETTING_KEY } from "./shared/consts";
-import { getItemFromStorage, setItemInStorage } from "./shared/utils";
+import { getSettings } from "./shared/settings";
+import { setItemInStorage } from "./shared/storage";
 import "../scss/options-page.scss";
 
 const USERNAME_FIELD_ID = "nick";
@@ -12,7 +13,7 @@ const SUCCESS_CLASS_NAME = "success--show";
 const DEFAULT_INTERVAL = 10;
 
 const applyUserSettings = async () => {
-    const storedSettings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+    const storedSettings = await getSettings();
     const settings = {
         [NICK_SETTING_KEY]: "",
         [INTERVAL_SETTING_KEY]: DEFAULT_INTERVAL,
@@ -20,8 +21,8 @@ const applyUserSettings = async () => {
 
     if (storedSettings) {
         try {
-            settings[NICK_SETTING_KEY] = storedSettings.find(item => item.key === NICK_SETTING_KEY).value;
-            settings[INTERVAL_SETTING_KEY] = storedSettings.find(item => item.key === INTERVAL_SETTING_KEY).value;
+            settings[NICK_SETTING_KEY] = storedSettings[NICK_SETTING_KEY];
+            settings[INTERVAL_SETTING_KEY] = storedSettings[INTERVAL_SETTING_KEY];
         } catch (e) {
             console.error("Settings could not be get from store", e);
         }

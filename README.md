@@ -32,7 +32,7 @@ You can have automatically formatted code (JS, SCSS) in VSCode in few steps:
 {
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true,
-		"source.fixAll.stylelint": true
+        "source.fixAll.stylelint": true
     },
     "eslint.validate": ["javascript"]
 }
