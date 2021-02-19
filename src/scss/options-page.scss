@@ -36,14 +36,24 @@
   @include button;
 }
 
-.success {
+.status {
   display: none;
 
-  &--show {
-    border: 1px solid $c-success;
-    color: $c-success;
+  &--success,
+  &--failure {
+    border: 1px solid;
     display: block;
     padding: 10px;
     text-align: center;
+  }
+
+  &--success {
+    border-color: $c-success;
+    color: $c-success;
+  }
+
+  &--failure {
+    border-color: $c-failure;
+    color: $c-failure;
   }
 }

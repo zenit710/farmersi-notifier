@@ -1,6 +1,7 @@
 $c-primary: #000;
 $c-secondary: #fff;
 $c-success: #0a0;
+$c-failure: #a00;
 
 @mixin button {
   background: $c-primary;
