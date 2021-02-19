@@ -10,7 +10,7 @@ const checkGames = async () => {
 
     let response = await fetchHomePage();
 
-    if (!isUserLoggedIn(response)) {
+    if (!isUserLoggedIn(response) || !isLoggedAsUserFromSettings(response)) {
         const loginBody = await getLoginBody();
         response = await fetchHomePageWithLogin(loginBody);
     }
@@ -110,7 +110,23 @@ const isUserLoggedIn = response => {
     const html = document.createElement("html");
     html.innerHTML = response;
 
-    return !!html.querySelector("a[href*='?logout=1'");
+    return !!html.querySelector("a[href*='?logout=1']");
+};
+
+const getLoggedUserName = response => {
+    const html = document.createElement("html");
+    html.innerHTML = response;
+
+    const loginElement =
+        html.querySelector("a[href*='?logout=1']").parentElement.querySelector("a[href*='user_info.php'] span");
+
+    return loginElement && loginElement.innerHTML;
+};
+
+const isLoggedAsUserFromSettings = response => {
+    const settings = getSettings();
+
+    return settings[NICK_SETTING_KEY] === getLoggedUserName(response);
 };
 
 export {
