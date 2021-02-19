@@ -7,6 +7,7 @@ const INTERVAL_SETTING_KEY = "interval";
 const COMPLETE_SETTING_KEY = "complete";
 
 const FARMERSI_URL = "https://farmersi.pl/";
+const FARMERSI_LOGOUT_URL = "https://farmersi.pl/index.php?logout=1";
 
 const RESTART_MESSAGE_PROPERTY = "restart";
 
@@ -18,5 +19,6 @@ export {
     INTERVAL_SETTING_KEY,
     COMPLETE_SETTING_KEY,
     FARMERSI_URL,
+    FARMERSI_LOGOUT_URL,
     RESTART_MESSAGE_PROPERTY,
 };

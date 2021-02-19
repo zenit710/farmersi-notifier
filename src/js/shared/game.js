@@ -1,5 +1,11 @@
 import { trackEvent } from "./analytics";
-import { FARMERSI_URL, NICK_SETTING_KEY, PASSWORD_SETTING_KEY, TO_PLAY_STORAGE_KEY } from "./consts";
+import {
+    FARMERSI_URL,
+    FARMERSI_LOGOUT_URL,
+    NICK_SETTING_KEY,
+    PASSWORD_SETTING_KEY,
+    TO_PLAY_STORAGE_KEY,
+} from "./consts";
 import { HtmlResponse } from "./htmlResponse";
 import { sendNotification } from "./notifications";
 import { request } from "./request";
@@ -10,9 +16,16 @@ const checkGames = async () => {
     trackEvent("check games", "fired");
 
     let htmlResponse = await fetchHomePage();
+    const isUserLogged = htmlResponse.isUserLoggedIn();
     const verifiedLogin = await isLoggedAsUserFromSettings(htmlResponse);
+    const shouldLogOut = isUserLogged && !verifiedLogin;
+    const shouldLogIn = !isUserLogged || !verifiedLogin;
 
-    if (!htmlResponse.isUserLoggedIn() || !verifiedLogin) {
+    if (shouldLogOut) {
+        await logout();
+    }
+
+    if (shouldLogIn) {
         const loginBody = await getLoginBody();
         htmlResponse = await fetchHomePageWithLogin(loginBody);
     }
@@ -45,6 +58,12 @@ const fetchHomePageWithLogin = async (loginBody, options = {}) => {
     htmlResponse.setResponse(html);
 
     return htmlResponse;
+};
+
+const logout = async () => {
+    const response = await request(FARMERSI_LOGOUT_URL);
+
+    return !!response;
 };
 
 const handleGameResponse = async htmlResponse => {
