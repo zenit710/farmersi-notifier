@@ -8,7 +8,7 @@ import { getItemFromStorage, setItemInStorage } from "./storage";
 const checkGames = async () => {
     trackEvent("check games", "fired");
 
-    let  response = await fetchHomePage();
+    let response = await fetchHomePage();
 
     if (!isUserLoggedIn(response)) {
         const loginBody = await getLoginBody();
@@ -18,17 +18,25 @@ const checkGames = async () => {
     handleGameResponse(response);
 };
 
-const fetchHomePage = () => request(FARMERSI_URL);
+const fetchHomePage = async () => {
+    const response = await request(FARMERSI_URL);
+    return response ? response.text() : "";
+};
 
-const fetchHomePageWithLogin = (loginBody) => request(FARMERSI_URL, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Content-Length": loginBody.length,
-    },
-    credentials: "omit",
-    body: loginBody,
-});
+const fetchHomePageWithLogin = async (loginBody, options = {}) => {
+    const response = await request(FARMERSI_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": loginBody.length,
+        },
+        credentials: "include",
+        body: loginBody,
+        ...options,
+    });
+
+    return response ? response.text() : "";
+};
 
 const handleGameResponse = async response => {
     const html = document.createElement("html");
@@ -89,7 +97,9 @@ const areCredentialsOk = async (user, password) => {
             user,
             password,
         });
-        const response = await fetchHomePageWithLogin(loginBody);
+        const response = await fetchHomePageWithLogin(loginBody, {
+            credentials: "omit",
+        });
         isOk = isUserLoggedIn(response);
     }
 
