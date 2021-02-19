@@ -41,9 +41,24 @@ class HtmlResponse {
     }
 
     isNeedingActionGame($game) {
-        return $game.nextElementSibling
-            && $game.nextElementSibling.nextElementSibling
-            && $game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje";
+        let toPlay = false;
+        let $element = $game;
+        let doNextStep = true;
+
+        while (doNextStep) {
+            $element = $element.nextElementSibling;
+
+            if ($element?.textContent === "podejmij decyzje") {
+                toPlay = true;
+                doNextStep = false;
+            }
+
+            if (!$element || $element?.tagName.toLowerCase() === "a") {
+                doNextStep = false;
+            }
+        }
+
+        return toPlay;
     }
 
     isUserLoggedIn() {
