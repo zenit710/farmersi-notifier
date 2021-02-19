@@ -1,3 +1,8 @@
+const GAME_SELECTOR = ".dwa a[href*='user.php?id_gra']";
+const LOGOUT_SELECTOR = "a[href*='?logout=1']";
+const USERNAME_SELECTOR = "a[href*='user_info.php'] span";
+const TO_PLAY_TEXT = "podejmij decyzje";
+
 class HtmlResponse {
     constructor() {
         this.response = null;
@@ -10,7 +15,7 @@ class HtmlResponse {
     }
 
     getGameElements() {
-        return this.$html.querySelectorAll(".dwa a[href*='user.php?id_gra']");
+        return this.$html.querySelectorAll(GAME_SELECTOR);
     }
 
     getNeedingActionGames() {
@@ -27,10 +32,10 @@ class HtmlResponse {
 
     getLoggedUserName() {
         let username = "";
-        const loginElement = this.$html.querySelector("a[href*='?logout=1']");
+        const logoutElement = this.$html.querySelector(LOGOUT_SELECTOR);
 
-        if (loginElement) {
-            const nameElement = loginElement.parentElement.querySelector("a[href*='user_info.php'] span");
+        if (logoutElement) {
+            const nameElement = logoutElement.parentElement.querySelector(USERNAME_SELECTOR);
 
             if (nameElement) {
                 username = nameElement.innerHTML;
@@ -48,7 +53,7 @@ class HtmlResponse {
         while (doNextStep) {
             $element = $element.nextElementSibling;
 
-            if ($element?.textContent === "podejmij decyzje") {
+            if ($element?.textContent === TO_PLAY_TEXT) {
                 toPlay = true;
                 doNextStep = false;
             }
@@ -62,7 +67,7 @@ class HtmlResponse {
     }
 
     isUserLoggedIn() {
-        return !!this.$html.querySelector("a[href*='?logout=1']");
+        return !!this.$html.querySelector(LOGOUT_SELECTOR);
     }
 }
 
