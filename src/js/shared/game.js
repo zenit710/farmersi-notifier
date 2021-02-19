@@ -1,47 +1,74 @@
 import { trackEvent } from "./analytics";
-import { FARMERSI_URL, NICK_SETTING_KEY, PASSWORD_SETTING_KEY, TO_PLAY_STORAGE_KEY } from "./consts";
+import {
+    FARMERSI_URL,
+    FARMERSI_LOGOUT_URL,
+    NICK_SETTING_KEY,
+    PASSWORD_SETTING_KEY,
+    TO_PLAY_STORAGE_KEY,
+} from "./consts";
+import { HtmlResponse } from "./htmlResponse";
 import { sendNotification } from "./notifications";
+import { request } from "./request";
 import { getSettings } from "./settings";
 import { getItemFromStorage, setItemInStorage } from "./storage";
 
 const checkGames = async () => {
     trackEvent("check games", "fired");
 
-    const loginBody = await getLoginBody();
-    const response = await fetchHomePage(loginBody);
+    let htmlResponse = await fetchHomePage();
+    const isUserLogged = htmlResponse.isUserLoggedIn();
+    const verifiedLogin = await isLoggedAsUserFromSettings(htmlResponse);
+    const shouldLogOut = isUserLogged && !verifiedLogin;
+    const shouldLogIn = !isUserLogged || !verifiedLogin;
 
-    handleGameResponse(response);
+    if (shouldLogOut) {
+        await logout();
+    }
+
+    if (shouldLogIn) {
+        const loginBody = await getLoginBody();
+        htmlResponse = await fetchHomePageWithLogin(loginBody);
+    }
+
+    handleGameResponse(htmlResponse);
 };
 
-const fetchHomePage = async (loginBody, customOptions = {}) => {
-    return fetch(FARMERSI_URL, {
+const fetchHomePage = async () => {
+    const response = await request(FARMERSI_URL);
+    const html = response ? await response.text() : "";
+    const htmlResponse = new HtmlResponse();
+    htmlResponse.setResponse(html);
+
+    return htmlResponse;
+};
+
+const fetchHomePageWithLogin = async (loginBody, options = {}) => {
+    const response = await request(FARMERSI_URL, {
         method: "POST",
-        mode: "no-cors",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
             "Content-Length": loginBody.length,
         },
-        credentials: "omit",
+        credentials: "include",
         body: loginBody,
-        ...customOptions,
-    }).then(
-        res => res.text(),
-        err => {
-            console.log("fetch error occured", err);
-            return "";
-        },
-    );
+        ...options,
+    });
+    const html = response ? await response.text() : "";
+    const htmlResponse = new HtmlResponse();
+    htmlResponse.setResponse(html);
+
+    return htmlResponse;
 };
 
-const handleGameResponse = async response => {
-    const html = document.createElement("html");
-    html.innerHTML = response;
+const logout = async () => {
+    const response = await request(FARMERSI_LOGOUT_URL);
 
-    const games = html.querySelectorAll(".dwa a[href*='user.php?id_gra']");
-    const actionNeedingGames = getNeedingActionGames(games);
+    return !!response;
+};
 
+const handleGameResponse = async htmlResponse => {
+    const actionNeedingGames = htmlResponse.getNeedingActionGames();
     let toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY) || [];
-
     const gameCount = actionNeedingGames.length;
     const newGamesToPlay = actionNeedingGames.filter(game => !toPlay.includes(game));
 
@@ -51,22 +78,6 @@ const handleGameResponse = async response => {
         sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
     }
 };
-
-const getNeedingActionGames = games => {
-    const actionNeedingGames = [];
-
-    games.forEach(game => {
-        if (isNeedingActionGame(game)) {
-            actionNeedingGames.push(game.textContent);
-        }
-    });
-
-    return actionNeedingGames;
-};
-
-const isNeedingActionGame = game => game.nextElementSibling
-    && game.nextElementSibling.nextElementSibling
-    && game.nextElementSibling.nextElementSibling.textContent === "podejmij decyzje";
 
 const getLoginBody = async ({ user, password } = {}) => {
     const settings = await getSettings();
@@ -92,20 +103,19 @@ const areCredentialsOk = async (user, password) => {
             user,
             password,
         });
-        const response = await fetchHomePage(loginBody, {
+        const htmlResponse = await fetchHomePageWithLogin(loginBody, {
             credentials: "omit",
         });
-        isOk = isUserLoggedIn(response);
+        isOk = htmlResponse.isUserLoggedIn();
     }
 
     return isOk;
 };
 
-const isUserLoggedIn = response => {
-    const html = document.createElement("html");
-    html.innerHTML = response;
+const isLoggedAsUserFromSettings = async htmlResponse => {
+    const settings = await getSettings();
 
-    return !!html.querySelector("a[href*='?logout=1'");
+    return settings[NICK_SETTING_KEY] === htmlResponse.getLoggedUserName();
 };
 
 export {
