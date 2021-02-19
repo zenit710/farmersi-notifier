@@ -1,37 +1,34 @@
 import { trackEvent } from "./analytics";
 import { FARMERSI_URL, NICK_SETTING_KEY, PASSWORD_SETTING_KEY, TO_PLAY_STORAGE_KEY } from "./consts";
 import { sendNotification } from "./notifications";
+import { request } from "./request";
 import { getSettings } from "./settings";
 import { getItemFromStorage, setItemInStorage } from "./storage";
 
 const checkGames = async () => {
     trackEvent("check games", "fired");
 
-    const loginBody = await getLoginBody();
-    const response = await fetchHomePage(loginBody);
+    let  response = await fetchHomePage();
+
+    if (!isUserLoggedIn(response)) {
+        const loginBody = await getLoginBody();
+        response = await fetchHomePageWithLogin(loginBody);
+    }
 
     handleGameResponse(response);
 };
 
-const fetchHomePage = async (loginBody, customOptions = {}) => {
-    return fetch(FARMERSI_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": loginBody.length,
-        },
-        credentials: "omit",
-        body: loginBody,
-        ...customOptions,
-    }).then(
-        res => res.text(),
-        err => {
-            console.log("fetch error occured", err);
-            return "";
-        },
-    );
-};
+const fetchHomePage = () => request(FARMERSI_URL);
+
+const fetchHomePageWithLogin = (loginBody) => request(FARMERSI_URL, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Length": loginBody.length,
+    },
+    credentials: "omit",
+    body: loginBody,
+});
 
 const handleGameResponse = async response => {
     const html = document.createElement("html");
@@ -92,9 +89,7 @@ const areCredentialsOk = async (user, password) => {
             user,
             password,
         });
-        const response = await fetchHomePage(loginBody, {
-            credentials: "omit",
-        });
+        const response = await fetchHomePageWithLogin(loginBody);
         isOk = isUserLoggedIn(response);
     }
 
