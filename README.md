@@ -6,7 +6,10 @@ Simple Chrome Extension which gives the user notifications about games waiting f
 After cloning repository run `npm install`
 
 ### Build
-`npm run build`
+`npm run build` - builds in production mode
+
+### Watch
+`npm run watch` - builds as dev - with sourcemaps and dev settings
 
 ### Instalation
 To install local extension read <https://developer.chrome.com/docs/extensions/mv2/faq/#faq-dev-01>

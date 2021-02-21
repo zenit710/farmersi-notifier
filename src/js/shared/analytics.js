@@ -1,4 +1,10 @@
+import { analyticsEnabled } from "config";
+
 const initAnalytics = () => {
+    if (!analyticsEnabled) {
+        return;
+    }
+
     window._gaq = window._gaq || [];
     window._gaq.push(["_setAccount", "UA-189792765-1"]);
     window._gaq.push(["_trackPageview"]);
@@ -14,6 +20,10 @@ const initAnalytics = () => {
 };
 
 const trackEvent = (target, action = "clicked") => {
+    if (!analyticsEnabled) {
+        return;
+    }
+
     if (typeof window._gaq !== "undefined") {
         // eslint-disable-next-line no-undef
         window._gaq.push(["_trackEvent", target, action]);
