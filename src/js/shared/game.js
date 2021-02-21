@@ -5,6 +5,7 @@ import {
     NICK_SETTING_KEY,
     PASSWORD_SETTING_KEY,
     TO_PLAY_STORAGE_KEY,
+    UNREADED_MESSAGES_STORAGE_KEY,
 } from "./consts";
 import { HtmlResponse } from "./htmlResponse";
 import { sendNotification } from "./notifications";
@@ -66,16 +67,30 @@ const logout = async () => {
     return !!response;
 };
 
-const handleGameResponse = async htmlResponse => {
+const handleGameResponse = htmlResponse => {
+    handleGamesToPlay(htmlResponse);
+    handleUnreadedMessages(htmlResponse);
+};
+
+const handleGamesToPlay = async (htmlResponse) => {
     const actionNeedingGames = htmlResponse.getNeedingActionGames();
-    let toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY) || [];
+    const toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY) || [];
     const gameCount = actionNeedingGames.length;
     const newGamesToPlay = actionNeedingGames.filter(game => !toPlay.includes(game));
-
     setItemInStorage(TO_PLAY_STORAGE_KEY, actionNeedingGames);
 
     if (newGamesToPlay.length) {
         sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
+    }
+};
+
+const handleUnreadedMessages = async (htmlResponse) => {
+    const storedUnreadedMessageCount = await getItemFromStorage(UNREADED_MESSAGES_STORAGE_KEY) || 0;
+    const unreadedMessageCount = htmlResponse.getUnreadedMessageCount();
+    setItemInStorage(UNREADED_MESSAGES_STORAGE_KEY, unreadedMessageCount);
+
+    if (unreadedMessageCount > storedUnreadedMessageCount) {
+        sendNotification(`Masz ${unreadedMessageCount} nieprzeczytanych wiadomości!`);
     }
 };
 

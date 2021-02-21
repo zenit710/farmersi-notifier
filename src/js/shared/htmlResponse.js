@@ -1,6 +1,8 @@
 const GAME_SELECTOR = ".dwa a[href*='user.php?id_gra']";
 const LOGOUT_SELECTOR = "a[href*='?logout=1']";
 const USERNAME_SELECTOR = "a[href*='user_info.php'] span";
+const UNREAD_MESSAGE_SELECTOR = "form[action*='message.php'] span.info";
+const UNREAD_COUNT_PATTERN = /\((\d+)\)/;
 const TO_PLAY_TEXT = "podejmij decyzje";
 
 class HtmlResponse {
@@ -28,6 +30,18 @@ class HtmlResponse {
         });
 
         return actionNeedingGames;
+    }
+
+    getUnreadedMessageCount() {
+        let count = 0;
+        const $unreadCount = this.$html.querySelector(UNREAD_MESSAGE_SELECTOR);
+
+        if ($unreadCount) {
+            const matches = UNREAD_COUNT_PATTERN.exec($unreadCount.textContent);
+            count = matches ? parseInt(matches[1]) : 0;
+        }
+
+        return count;
     }
 
     getLoggedUserName() {
