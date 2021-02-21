@@ -28,18 +28,9 @@ const DEFAULT_INTERVAL = 10;
 const applyUserSettings = async () => {
     const storedSettings = await getSettings();
     const settings = {
-        [NICK_SETTING_KEY]: "",
-        [INTERVAL_SETTING_KEY]: DEFAULT_INTERVAL,
+        [NICK_SETTING_KEY]: storedSettings[NICK_SETTING_KEY] || "",
+        [INTERVAL_SETTING_KEY]: storedSettings[INTERVAL_SETTING_KEY] || DEFAULT_INTERVAL,
     };
-
-    if (storedSettings) {
-        try {
-            settings[NICK_SETTING_KEY] = storedSettings[NICK_SETTING_KEY];
-            settings[INTERVAL_SETTING_KEY] = storedSettings[INTERVAL_SETTING_KEY];
-        } catch (e) {
-            console.error("Settings could not be get from store", e);
-        }
-    }
 
     document.getElementById(USERNAME_FIELD_ID).value = settings[NICK_SETTING_KEY];
     document.getElementById(INTERVAL_FIELD_ID).value = settings[INTERVAL_SETTING_KEY];
