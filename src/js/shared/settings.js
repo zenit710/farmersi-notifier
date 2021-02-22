@@ -1,9 +1,12 @@
 import {
-    SETTINGS_STORAGE_KEY,
-    NICK_SETTING_KEY,
-    PASSWORD_SETTING_KEY,
-    INTERVAL_SETTING_KEY,
-    COMPLETE_SETTING_KEY,
+    STORAGE_KEY_SETTINGS,
+    SETTING_KEY_NICK,
+    SETTING_KEY_PASSWORD,
+    SETTING_KEY_INTERVAL,
+    SETTING_KEY_COMPLETE,
+    SETTING_KEY_NOTIFY_GAME,
+    SETTING_KEY_NOTIFY_MESSAGE,
+    SETTING_KEY_NOTIFY_COMMENT,
 } from "./consts";
 import { getItemFromStorage } from "./storage";
 
@@ -23,17 +26,20 @@ const getSettingByKey = (settings, key) => {
 
 const getSettingsFromStorage = async() => {
     const settings = {
-        [COMPLETE_SETTING_KEY]: false,
+        [SETTING_KEY_COMPLETE]: false,
     };
-    const storedSettings = await getItemFromStorage(SETTINGS_STORAGE_KEY);
+    const storedSettings = await getItemFromStorage(STORAGE_KEY_SETTINGS);
 
     if (storedSettings) {
-        settings[NICK_SETTING_KEY] = getSettingByKey(storedSettings, NICK_SETTING_KEY);
-        settings[PASSWORD_SETTING_KEY] = getSettingByKey(storedSettings, PASSWORD_SETTING_KEY);
-        settings[INTERVAL_SETTING_KEY] = parseInt(getSettingByKey(storedSettings, INTERVAL_SETTING_KEY));
-        settings[COMPLETE_SETTING_KEY] = settings[NICK_SETTING_KEY]
-            && settings[PASSWORD_SETTING_KEY]
-            && settings[INTERVAL_SETTING_KEY];
+        settings[SETTING_KEY_NICK] = getSettingByKey(storedSettings, SETTING_KEY_NICK);
+        settings[SETTING_KEY_PASSWORD] = getSettingByKey(storedSettings, SETTING_KEY_PASSWORD);
+        settings[SETTING_KEY_INTERVAL] = parseInt(getSettingByKey(storedSettings, SETTING_KEY_INTERVAL));
+        settings[SETTING_KEY_NOTIFY_GAME] = getSettingByKey(storedSettings, SETTING_KEY_NOTIFY_GAME);
+        settings[SETTING_KEY_NOTIFY_MESSAGE] = getSettingByKey(storedSettings, SETTING_KEY_NOTIFY_MESSAGE);
+        settings[SETTING_KEY_NOTIFY_COMMENT] = getSettingByKey(storedSettings, SETTING_KEY_NOTIFY_COMMENT);
+        settings[SETTING_KEY_COMPLETE] = settings[SETTING_KEY_NICK]
+            && settings[SETTING_KEY_PASSWORD]
+            && settings[SETTING_KEY_INTERVAL];
     }
 
     return settings;

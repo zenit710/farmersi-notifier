@@ -2,11 +2,14 @@ import { trackEvent } from "./analytics";
 import {
     FARMERSI_URL,
     FARMERSI_LOGOUT_URL,
-    NICK_SETTING_KEY,
-    PASSWORD_SETTING_KEY,
-    TO_PLAY_STORAGE_KEY,
-    UNREADED_MESSAGES_STORAGE_KEY,
-    TEAM_COMMENTS_GAMES_STORAGE_KEY,
+    SETTING_KEY_NICK,
+    SETTING_KEY_PASSWORD,
+    STORAGE_KEY_TO_PLAY,
+    STORAGE_KEY_UNREADED_MESSAGES,
+    STORAGE_KEY_TEAM_COMMENTS,
+    SETTING_KEY_NOTIFY_GAME,
+    SETTING_KEY_NOTIFY_MESSAGE,
+    SETTING_KEY_NOTIFY_COMMENT,
 } from "./consts";
 import { HtmlResponse } from "./htmlResponse";
 import { sendNotification } from "./notifications";
@@ -68,18 +71,26 @@ const logout = async () => {
     return !!response;
 };
 
-const handleGameResponse = htmlResponse => {
-    handleGamesToPlay(htmlResponse);
-    handleUnreadedMessages(htmlResponse);
-    handleTeamComments(htmlResponse);
+const handleGameResponse = async htmlResponse => {
+    const settings = await getSettings();
+
+    if (settings[SETTING_KEY_NOTIFY_GAME]) {
+        handleGamesToPlay(htmlResponse);
+    }
+    if (settings[SETTING_KEY_NOTIFY_MESSAGE]) {
+        handleUnreadedMessages(htmlResponse);
+    }
+    if (settings[SETTING_KEY_NOTIFY_COMMENT]) {
+        handleTeamComments(htmlResponse);
+    }
 };
 
 const handleGamesToPlay = async (htmlResponse) => {
     const actionNeedingGames = htmlResponse.getNeedingActionGames();
-    const toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY) || [];
+    const toPlay = await getItemFromStorage(STORAGE_KEY_TO_PLAY) || [];
     const gameCount = actionNeedingGames.length;
     const newGamesToPlay = actionNeedingGames.filter(game => !toPlay.includes(game));
-    setItemInStorage(TO_PLAY_STORAGE_KEY, actionNeedingGames);
+    setItemInStorage(STORAGE_KEY_TO_PLAY, actionNeedingGames);
 
     if (newGamesToPlay.length) {
         sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
@@ -87,9 +98,9 @@ const handleGamesToPlay = async (htmlResponse) => {
 };
 
 const handleUnreadedMessages = async (htmlResponse) => {
-    const storedUnreadedMessageCount = await getItemFromStorage(UNREADED_MESSAGES_STORAGE_KEY) || 0;
+    const storedUnreadedMessageCount = await getItemFromStorage(STORAGE_KEY_UNREADED_MESSAGES) || 0;
     const unreadedMessageCount = htmlResponse.getUnreadedMessageCount();
-    setItemInStorage(UNREADED_MESSAGES_STORAGE_KEY, unreadedMessageCount);
+    setItemInStorage(STORAGE_KEY_UNREADED_MESSAGES, unreadedMessageCount);
 
     if (unreadedMessageCount > storedUnreadedMessageCount) {
         sendNotification(`Masz ${unreadedMessageCount} nieprzeczytanych wiadomości!`);
@@ -97,11 +108,11 @@ const handleUnreadedMessages = async (htmlResponse) => {
 };
 
 const handleTeamComments = async (htmlResponse) => {
-    const storedGames = await getItemFromStorage(TEAM_COMMENTS_GAMES_STORAGE_KEY) || [];
+    const storedGames = await getItemFromStorage(STORAGE_KEY_TEAM_COMMENTS) || [];
     const games = htmlResponse.getTeamCommentsGames();
     const gamesCount = games.length;
     const newComments = games.filter(game => !storedGames.includes(game));
-    setItemInStorage(TEAM_COMMENTS_GAMES_STORAGE_KEY, games);
+    setItemInStorage(STORAGE_KEY_TEAM_COMMENTS, games);
 
     if (newComments.length) {
         sendNotification(`W ${gamesCount} grach pojawiły się komentarze druzynowe!`);
@@ -111,8 +122,8 @@ const handleTeamComments = async (htmlResponse) => {
 const getLoginBody = async ({ user, password } = {}) => {
     const settings = await getSettings();
     const bodyValues = {
-        login: user || settings[NICK_SETTING_KEY],
-        password: password || settings[PASSWORD_SETTING_KEY],
+        login: user || settings[SETTING_KEY_NICK],
+        password: password || settings[SETTING_KEY_PASSWORD],
         logowanie: "zaloguj",
     };
     const formData = new FormData();
@@ -144,7 +155,7 @@ const areCredentialsOk = async (user, password) => {
 const isLoggedAsUserFromSettings = async htmlResponse => {
     const settings = await getSettings();
 
-    return settings[NICK_SETTING_KEY] === htmlResponse.getLoggedUserName();
+    return settings[SETTING_KEY_NICK] === htmlResponse.getLoggedUserName();
 };
 
 export {
