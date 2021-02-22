@@ -7,6 +7,8 @@ module.exports = {
     "globals": {
         "chrome": "readonly",
         "__dirname": "readonly",
+        "process": "readonly",
+        "require": "readonly",
         "module": "writeable",
     },
     "parserOptions": {

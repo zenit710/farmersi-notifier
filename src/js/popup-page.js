@@ -1,5 +1,5 @@
 import { initAnalytics, trackEvent } from "./shared/analytics";
-import { TO_PLAY_STORAGE_KEY, FARMERSI_URL, COMPLETE_SETTING_KEY } from "./shared/consts";
+import { STORAGE_KEY_TO_PLAY, FARMERSI_URL, SETTING_KEY_COMPLETE } from "./shared/consts";
 import { getSettings } from "./shared/settings";
 import { getItemFromStorage } from "./shared/storage";
 import "../scss/popup-page.scss";
@@ -15,9 +15,9 @@ const NO_SETTINGS_SHOW_CLASS_NAME = "no-settings--show";
 
 const init = async () => {
     const settings = await getSettings();
-    const toPlay = await getItemFromStorage(TO_PLAY_STORAGE_KEY);
+    const toPlay = await getItemFromStorage(STORAGE_KEY_TO_PLAY);
 
-    if (settings[COMPLETE_SETTING_KEY]) {
+    if (settings[SETTING_KEY_COMPLETE]) {
         const gamesCount = Array.isArray(toPlay) ? toPlay.length : 0;
         document.querySelector(GAME_COUNT_SELECTOR).innerHTML = gamesCount;
         document.querySelector(ACTION_REQUIRED_SELECTOR).classList.add(ACTION_REQUIRED_SHOW_CLASS_NAME);

@@ -20,14 +20,16 @@
   }
 
   &__field {
-    appearance: none;
-    border: 0;
-    border-bottom: 1px solid $c-primary;
-    padding: 5px;
-    width: 70%;
+    &--text {
+      appearance: none;
+      border: 0;
+      border-bottom: 1px solid $c-primary;
+      padding: 5px;
+      width: 70%;
 
-    &:focus {
-      outline: none;
+      &:focus {
+        outline: none;
+      }
     }
   }
 }

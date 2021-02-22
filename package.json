@@ -1,6 +1,6 @@
 {
   "name": "farmersi-notifier",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Waiting games notifications for farmersi.pl",
   "private": true,
   "dependencies": {},
@@ -27,6 +27,7 @@
     "publish": "npm run build && npm run zip",
     "stylelint": "stylelint **/*.scss",
     "stylelint:fix": "stylelint --fix **/*.scss",
+    "watch": "webpack --watch --env NODE_ENV=development --mode=development",
     "zip": "mkdirp build && cross-zip dist build/farmersi-notifier.zip"
   },
   "repository": {
