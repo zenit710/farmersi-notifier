@@ -23,15 +23,29 @@
         <form class="options-form">
             <div class="form-group">
                 <label for="nick" class="form-group__label">Nick</label>
-                <input type="text" class="form-group__field" placeholder="nick" id="nick" name="nick" />
+                <input type="text" class="form-group__field--text" placeholder="nick" id="nick" name="nick" />
             </div>
             <div class="form-group">
                 <label for="password" class="form-group__label">Hasło</label>
-                <input type="password" class="form-group__field" placeholder="hasło" id="password" name="password" />
+                <input type="password" class="form-group__field--text placeholder="hasło" id="password" name="password" />
             </div>
             <div class="form-group">
                 <label for="interval" class="form-group__label">Częstotliwość odświezania (min.)</label>
-                <input type="number" class="form-group__field" id="interval" name="interval" value="10" />
+                <input type="number" class="form-group__field--text" id="interval" name="interval" value="10" />
+            </div>
+
+            <h3>Powiadomienia</h3>
+            <div class="form-group">
+                <label for="notify-game" class="form-group__label">Nowa gra do przeliczenia</label>
+                <input type="checkbox" class="form-group__field--checkbox" id="notify-game" name="notifyGame" />
+            </div>
+            <div class="form-group">
+                <label for="notify-message" class="form-group__label">Nowa wiadomość prywatna</label>
+                <input type="checkbox" class="form-group__field--checkbox" id="notify-message" name="notifyMessage" />
+            </div>
+            <div class="form-group">
+                <label for="notify-comment" class="form-group__label">Nowy komentarz druzynowy</label>
+                <input type="checkbox" class="form-group__field--checkbox" id="notify-comment" name="notifyComment" />
             </div>
 
             <input type="submit" class="submit" value="Zapisz ustawienia" />

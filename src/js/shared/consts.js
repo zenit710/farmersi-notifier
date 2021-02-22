@@ -1,12 +1,15 @@
-const SETTINGS_STORAGE_KEY = "settings";
-const TO_PLAY_STORAGE_KEY = "toPlay";
-const UNREADED_MESSAGES_STORAGE_KEY = "unreadedMessages";
-const TEAM_COMMENTS_GAMES_STORAGE_KEY = "teamCommentsGames";
+const STORAGE_KEY_SETTINGS = "settings";
+const STORAGE_KEY_TO_PLAY = "toPlay";
+const STORAGE_KEY_UNREADED_MESSAGES = "unreadedMessages";
+const STORAGE_KEY_TEAM_COMMENTS = "teamCommentsGames";
 
-const NICK_SETTING_KEY = "nick";
-const PASSWORD_SETTING_KEY = "password";
-const INTERVAL_SETTING_KEY = "interval";
-const COMPLETE_SETTING_KEY = "complete";
+const SETTING_KEY_NICK = "nick";
+const SETTING_KEY_PASSWORD = "password";
+const SETTING_KEY_INTERVAL = "interval";
+const SETTING_KEY_NOTIFY_GAME = "notifyGame";
+const SETTING_KEY_NOTIFY_MESSAGE = "notifyMessage";
+const SETTING_KEY_NOTIFY_COMMENT = "notifyComment";
+const SETTING_KEY_COMPLETE = "complete";
 
 const FARMERSI_URL = "https://farmersi.pl/";
 const FARMERSI_LOGOUT_URL = "https://farmersi.pl/index.php?logout=1";
@@ -14,14 +17,17 @@ const FARMERSI_LOGOUT_URL = "https://farmersi.pl/index.php?logout=1";
 const RESTART_MESSAGE_PROPERTY = "restart";
 
 export {
-    SETTINGS_STORAGE_KEY,
-    TO_PLAY_STORAGE_KEY,
-    UNREADED_MESSAGES_STORAGE_KEY,
-    TEAM_COMMENTS_GAMES_STORAGE_KEY,
-    NICK_SETTING_KEY,
-    PASSWORD_SETTING_KEY,
-    INTERVAL_SETTING_KEY,
-    COMPLETE_SETTING_KEY,
+    STORAGE_KEY_SETTINGS,
+    STORAGE_KEY_TO_PLAY,
+    STORAGE_KEY_UNREADED_MESSAGES,
+    STORAGE_KEY_TEAM_COMMENTS,
+    SETTING_KEY_NICK,
+    SETTING_KEY_PASSWORD,
+    SETTING_KEY_INTERVAL,
+    SETTING_KEY_NOTIFY_GAME,
+    SETTING_KEY_NOTIFY_MESSAGE,
+    SETTING_KEY_NOTIFY_COMMENT,
+    SETTING_KEY_COMPLETE,
     FARMERSI_URL,
     FARMERSI_LOGOUT_URL,
     RESTART_MESSAGE_PROPERTY,
