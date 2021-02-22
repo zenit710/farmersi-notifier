@@ -7,6 +7,9 @@ import {
     STORAGE_KEY_TO_PLAY,
     STORAGE_KEY_UNREADED_MESSAGES,
     STORAGE_KEY_TEAM_COMMENTS,
+    SETTING_KEY_NOTIFY_GAME,
+    SETTING_KEY_NOTIFY_MESSAGE,
+    SETTING_KEY_NOTIFY_COMMENT,
 } from "./consts";
 import { HtmlResponse } from "./htmlResponse";
 import { sendNotification } from "./notifications";
@@ -68,10 +71,18 @@ const logout = async () => {
     return !!response;
 };
 
-const handleGameResponse = htmlResponse => {
-    handleGamesToPlay(htmlResponse);
-    handleUnreadedMessages(htmlResponse);
-    handleTeamComments(htmlResponse);
+const handleGameResponse = async htmlResponse => {
+    const settings = await getSettings();
+
+    if (settings[SETTING_KEY_NOTIFY_GAME]) {
+        handleGamesToPlay(htmlResponse);
+    }
+    if (settings[SETTING_KEY_NOTIFY_MESSAGE]) {
+        handleUnreadedMessages(htmlResponse);
+    }
+    if (settings[SETTING_KEY_NOTIFY_COMMENT]) {
+        handleTeamComments(htmlResponse);
+    }
 };
 
 const handleGamesToPlay = async (htmlResponse) => {
