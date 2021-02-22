@@ -6,6 +6,7 @@ import {
     PASSWORD_SETTING_KEY,
     TO_PLAY_STORAGE_KEY,
     UNREADED_MESSAGES_STORAGE_KEY,
+    TEAM_COMMENTS_GAMES_STORAGE_KEY,
 } from "./consts";
 import { HtmlResponse } from "./htmlResponse";
 import { sendNotification } from "./notifications";
@@ -70,6 +71,7 @@ const logout = async () => {
 const handleGameResponse = htmlResponse => {
     handleGamesToPlay(htmlResponse);
     handleUnreadedMessages(htmlResponse);
+    handleTeamComments(htmlResponse);
 };
 
 const handleGamesToPlay = async (htmlResponse) => {
@@ -91,6 +93,20 @@ const handleUnreadedMessages = async (htmlResponse) => {
 
     if (unreadedMessageCount > storedUnreadedMessageCount) {
         sendNotification(`Masz ${unreadedMessageCount} nieprzeczytanych wiadomości!`);
+    }
+};
+
+const handleTeamComments = async (htmlResponse) => {
+    const storedGames = await getItemFromStorage(TEAM_COMMENTS_GAMES_STORAGE_KEY) || [];
+    const games = htmlResponse.getTeamCommentsGames();
+    console.log("storedGames", storedGames);
+    console.log("games", games);
+    const gamesCount = games.length;
+    const newComments = games.filter(game => !storedGames.includes(game));
+    setItemInStorage(TEAM_COMMENTS_GAMES_STORAGE_KEY, games);
+
+    if (newComments.length) {
+        sendNotification(`W ${gamesCount} grach pojawiły się komentarze druzynowe!`);
     }
 };
 
