@@ -99,8 +99,6 @@ const handleUnreadedMessages = async (htmlResponse) => {
 const handleTeamComments = async (htmlResponse) => {
     const storedGames = await getItemFromStorage(TEAM_COMMENTS_GAMES_STORAGE_KEY) || [];
     const games = htmlResponse.getTeamCommentsGames();
-    console.log("storedGames", storedGames);
-    console.log("games", games);
     const gamesCount = games.length;
     const newComments = games.filter(game => !storedGames.includes(game));
     setItemInStorage(TEAM_COMMENTS_GAMES_STORAGE_KEY, games);
