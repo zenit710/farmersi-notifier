@@ -12,7 +12,7 @@ import {
     SETTING_KEY_NOTIFY_COMMENT,
 } from "./consts";
 import { HtmlResponse } from "./htmlResponse";
-import { sendNotification } from "./notifications";
+import { GameNotification } from "./GameNotification";
 import { request } from "./request";
 import { getSettings } from "./settings";
 import { getItemFromStorage, setItemInStorage } from "./storage";
@@ -72,50 +72,68 @@ const logout = async () => {
 };
 
 const handleGameResponse = async htmlResponse => {
-    const settings = await getSettings();
+    const gamesToPlay = await getGamesToPlay(htmlResponse);
+    const unreadedMessages = await getUnreadedMessages(htmlResponse);
+    const teamCommentGames = await getTeamCommentGames(htmlResponse);
+    const notificationContent = {
+        games: gamesToPlay.newCount ? gamesToPlay.allCount : 0,
+        messages: unreadedMessages.newCount > 0 ? unreadedMessages.allCount : 0,
+        comments: teamCommentGames.newCount ? teamCommentGames.allCount : 0,
+    };
 
-    if (settings[SETTING_KEY_NOTIFY_GAME]) {
-        handleGamesToPlay(htmlResponse);
-    }
-    if (settings[SETTING_KEY_NOTIFY_MESSAGE]) {
-        handleUnreadedMessages(htmlResponse);
-    }
-    if (settings[SETTING_KEY_NOTIFY_COMMENT]) {
-        handleTeamComments(htmlResponse);
-    }
+    sendNotification(notificationContent);
+
+    setItemInStorage(STORAGE_KEY_TO_PLAY, gamesToPlay.list);
+    setItemInStorage(STORAGE_KEY_UNREADED_MESSAGES, unreadedMessages.allCount);
+    setItemInStorage(STORAGE_KEY_TEAM_COMMENTS, teamCommentGames.list);
 };
 
-const handleGamesToPlay = async (htmlResponse) => {
+const getGamesToPlay = async (htmlResponse) => {
     const actionNeedingGames = htmlResponse.getNeedingActionGames();
     const toPlay = await getItemFromStorage(STORAGE_KEY_TO_PLAY) || [];
     const gameCount = actionNeedingGames.length;
     const newGamesToPlay = actionNeedingGames.filter(game => !toPlay.includes(game));
-    setItemInStorage(STORAGE_KEY_TO_PLAY, actionNeedingGames);
 
-    if (newGamesToPlay.length) {
-        sendNotification(`Gry (${gameCount}) oczekują na podjęcie decyzji!`);
-    }
+    return {
+        newCount: newGamesToPlay.length,
+        allCount: gameCount,
+        list: actionNeedingGames,
+    };
 };
 
-const handleUnreadedMessages = async (htmlResponse) => {
+const getUnreadedMessages = async (htmlResponse) => {
     const storedUnreadedMessageCount = await getItemFromStorage(STORAGE_KEY_UNREADED_MESSAGES) || 0;
     const unreadedMessageCount = htmlResponse.getUnreadedMessageCount();
-    setItemInStorage(STORAGE_KEY_UNREADED_MESSAGES, unreadedMessageCount);
 
-    if (unreadedMessageCount > storedUnreadedMessageCount) {
-        sendNotification(`Masz ${unreadedMessageCount} nieprzeczytanych wiadomości!`);
-    }
+    return {
+        newCount: unreadedMessageCount - storedUnreadedMessageCount,
+        allCount: unreadedMessageCount,
+    };
 };
 
-const handleTeamComments = async (htmlResponse) => {
+const getTeamCommentGames = async (htmlResponse) => {
     const storedGames = await getItemFromStorage(STORAGE_KEY_TEAM_COMMENTS) || [];
     const games = htmlResponse.getTeamCommentsGames();
     const gamesCount = games.length;
     const newComments = games.filter(game => !storedGames.includes(game));
-    setItemInStorage(STORAGE_KEY_TEAM_COMMENTS, games);
 
-    if (newComments.length) {
-        sendNotification(`W ${gamesCount} grach pojawiły się komentarze druzynowe!`);
+    return {
+        newCount: newComments.length,
+        allCount: gamesCount,
+        list: games,
+    };
+};
+
+const sendNotification = async (content = {}) => {
+    const settings = await getSettings();
+    const notification = new GameNotification();
+
+    notification.setGamesCount(settings[SETTING_KEY_NOTIFY_GAME] ? content.games : 0);
+    notification.setMessageCount(settings[SETTING_KEY_NOTIFY_MESSAGE] ? content.messages : 0);
+    notification.setTeamCommentGamesCount(settings[SETTING_KEY_NOTIFY_COMMENT] ? content.comments : 0);
+
+    if (notification.hasContentToSend()) {
+        notification.send();
     }
 };
 
