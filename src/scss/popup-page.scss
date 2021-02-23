@@ -4,8 +4,14 @@
   width: 300px;
 }
 
-.game-count {
+.game-count,
+.message-count,
+.comment-count {
+  background-color: $c-primary;
+  color: $c-secondary;
+  display: inline-block;
   font-weight: bold;
+  padding: 3px 5px;
 }
 
 .action-required {
