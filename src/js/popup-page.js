@@ -38,7 +38,7 @@ const showGameStatus = async () => {
     const unreadedMessages = await getItemFromStorage(STORAGE_KEY_UNREAD_MESSAGES);
     const teamComments = await getItemFromStorage(STORAGE_KEY_TEAM_COMMENTS);
     const gamesCount = toPlay?.length || 0;
-    const messagesCount = unreadedMessages || 0;
+    const messagesCount = unreadedMessages.length || 0;
     const commentsCount = teamComments?.length || 0;
 
     document.querySelector(GAME_COUNT_SELECTOR).innerHTML = gamesCount;
