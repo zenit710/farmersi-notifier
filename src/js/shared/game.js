@@ -20,20 +20,32 @@ const checkGames = async () => {
 
     const settings = await getSettings();
     const gameData = await fetchNotifierData(settings[SETTING_KEY_NICK], settings[SETTING_KEY_PASSWORD]);
-    handleGameResponse(gameData);
+
+    if (gameData) {
+        handleGameResponse(gameData);
+    }
 };
 
 const fetchNotifierData = async (user, password) => {
     const response = await request(FARMERSI_NOTIFIER_API_ENDPOINT, {
         method: METHOD.POST,
-        mode: "cors",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({ user, password }),
     });
 
-    return await response.json();
+    if (!response) {
+        return null;
+    }
+
+    const body = await response.json();
+
+    if (body.actual_games === undefined) {
+        return null;
+    }
+
+    return body;
 };
 
 const handleGameResponse = async ({ actual_games, unread_messages }) => {
@@ -104,7 +116,7 @@ const sendNotification = async (content = {}) => {
 const areCredentialsOk = async (user, password) => {
     const gameData = await fetchNotifierData(user, password);
 
-    return !!gameData.actual_games;
+    return !!gameData;
 };
 
 export {

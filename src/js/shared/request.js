@@ -9,7 +9,7 @@ export const request = async (url, options = {}) => {
     try {
         response = await fetch(url, {
             method: "GET",
-            mode: "no-cors",
+            mode: "cors",
             ...options,
         });
 
