@@ -3,7 +3,7 @@ import {
     STORAGE_KEY_TO_PLAY,
     FARMERSI_URL,
     SETTING_KEY_COMPLETE,
-    STORAGE_KEY_UNREADED_MESSAGES,
+    STORAGE_KEY_UNREAD_MESSAGES,
     STORAGE_KEY_TEAM_COMMENTS,
 } from "./shared/consts";
 import { getSettings } from "./shared/settings";
@@ -35,7 +35,7 @@ const init = async () => {
 
 const showGameStatus = async () => {
     const toPlay = await getItemFromStorage(STORAGE_KEY_TO_PLAY);
-    const unreadedMessages = await getItemFromStorage(STORAGE_KEY_UNREADED_MESSAGES);
+    const unreadedMessages = await getItemFromStorage(STORAGE_KEY_UNREAD_MESSAGES);
     const teamComments = await getItemFromStorage(STORAGE_KEY_TEAM_COMMENTS);
     const gamesCount = toPlay?.length || 0;
     const messagesCount = unreadedMessages || 0;

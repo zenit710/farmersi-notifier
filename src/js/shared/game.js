@@ -1,126 +1,90 @@
 import { trackEvent } from "./analytics";
 import {
-    FARMERSI_URL,
-    FARMERSI_LOGOUT_URL,
+    FARMERSI_NOTIFIER_API_ENDPOINT,
     SETTING_KEY_NICK,
     SETTING_KEY_PASSWORD,
     STORAGE_KEY_TO_PLAY,
-    STORAGE_KEY_UNREADED_MESSAGES,
+    STORAGE_KEY_UNREAD_MESSAGES,
     STORAGE_KEY_TEAM_COMMENTS,
     SETTING_KEY_NOTIFY_GAME,
     SETTING_KEY_NOTIFY_MESSAGE,
     SETTING_KEY_NOTIFY_COMMENT,
 } from "./consts";
-import { HtmlResponse } from "./htmlResponse";
 import { GameNotification } from "./GameNotification";
-import { request } from "./request";
+import { METHOD, request } from "./request";
 import { getSettings } from "./settings";
 import { getItemFromStorage, setItemInStorage } from "./storage";
 
 const checkGames = async () => {
     trackEvent("check games", "fired");
 
-    let htmlResponse = await fetchHomePage();
-    const isUserLogged = htmlResponse.isUserLoggedIn();
-    const verifiedLogin = await isLoggedAsUserFromSettings(htmlResponse);
-    const shouldLogOut = isUserLogged && !verifiedLogin;
-    const shouldLogIn = !isUserLogged || !verifiedLogin;
-
-    if (shouldLogOut) {
-        await logout();
-    }
-
-    if (shouldLogIn) {
-        const loginBody = await getLoginBody();
-        htmlResponse = await fetchHomePageWithLogin(loginBody);
-    }
-
-    handleGameResponse(htmlResponse);
+    const settings = await getSettings();
+    const gameData = await fetchNotifierData(settings[SETTING_KEY_NICK], settings[SETTING_KEY_PASSWORD]);
+    handleGameResponse(gameData);
 };
 
-const fetchHomePage = async () => {
-    const response = await request(FARMERSI_URL);
-    const html = response ? await response.text() : "";
-    const htmlResponse = new HtmlResponse();
-    htmlResponse.setResponse(html);
-
-    return htmlResponse;
-};
-
-const fetchHomePageWithLogin = async (loginBody, options = {}) => {
-    const response = await request(FARMERSI_URL, {
-        method: "POST",
+const fetchNotifierData = async (user, password) => {
+    const response = await request(FARMERSI_NOTIFIER_API_ENDPOINT, {
+        method: METHOD.POST,
+        mode: "cors",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": loginBody.length,
+            "Content-Type": "application/json",
         },
-        credentials: "include",
-        body: loginBody,
-        ...options,
+        body: JSON.stringify({ user, password }),
     });
-    const html = response ? await response.text() : "";
-    const htmlResponse = new HtmlResponse();
-    htmlResponse.setResponse(html);
 
-    return htmlResponse;
+    return await response.json();
 };
 
-const logout = async () => {
-    const response = await request(FARMERSI_LOGOUT_URL);
-
-    return !!response;
-};
-
-const handleGameResponse = async htmlResponse => {
-    const gamesToPlay = await getGamesToPlay(htmlResponse);
-    const unreadedMessages = await getUnreadedMessages(htmlResponse);
-    const teamCommentGames = await getTeamCommentGames(htmlResponse);
+const handleGameResponse = async ({ actual_games, unread_messages }) => {
+    const gamesToPlay = await getGamesToPlay(actual_games);
+    const unreadMessages = await getUnreadMessages(unread_messages);
+    const teamCommentGames = await getTeamCommentGames(actual_games);
     const notificationContent = {
         games: gamesToPlay.newCount ? gamesToPlay.allCount : 0,
-        messages: unreadedMessages.newCount > 0 ? unreadedMessages.allCount : 0,
+        messages: unreadMessages.newCount > 0 ? unreadMessages.allCount : 0,
         comments: teamCommentGames.newCount ? teamCommentGames.allCount : 0,
     };
 
     sendNotification(notificationContent);
 
     setItemInStorage(STORAGE_KEY_TO_PLAY, gamesToPlay.list);
-    setItemInStorage(STORAGE_KEY_UNREADED_MESSAGES, unreadedMessages.allCount);
+    setItemInStorage(STORAGE_KEY_UNREAD_MESSAGES, unreadMessages.list);
     setItemInStorage(STORAGE_KEY_TEAM_COMMENTS, teamCommentGames.list);
 };
 
-const getGamesToPlay = async (htmlResponse) => {
-    const actionNeedingGames = htmlResponse.getNeedingActionGames();
+const getGamesToPlay = async (games) => {
+    const actionNeedingGames = games.filter(game => !game.decision_made).map(game => game.name);
     const toPlay = await getItemFromStorage(STORAGE_KEY_TO_PLAY) || [];
-    const gameCount = actionNeedingGames.length;
     const newGamesToPlay = actionNeedingGames.filter(game => !toPlay.includes(game));
 
     return {
         newCount: newGamesToPlay.length,
-        allCount: gameCount,
+        allCount: actionNeedingGames.length,
         list: actionNeedingGames,
     };
 };
 
-const getUnreadedMessages = async (htmlResponse) => {
-    const storedUnreadedMessageCount = await getItemFromStorage(STORAGE_KEY_UNREADED_MESSAGES) || 0;
-    const unreadedMessageCount = htmlResponse.getUnreadedMessageCount();
+const getUnreadMessages = async (messages) => {
+    const storedUnreadMessages = await getItemFromStorage(STORAGE_KEY_UNREAD_MESSAGES) || [];
+    const newUnread = messages.filter(msg => !storedUnreadMessages.includes(msg));
 
     return {
-        newCount: unreadedMessageCount - storedUnreadedMessageCount,
-        allCount: unreadedMessageCount,
+        newCount: newUnread.length,
+        allCount: messages.length,
+        list: messages,
     };
 };
 
-const getTeamCommentGames = async (htmlResponse) => {
+const getTeamCommentGames = async (games) => {
     const storedGames = await getItemFromStorage(STORAGE_KEY_TEAM_COMMENTS) || [];
-    const games = htmlResponse.getTeamCommentsGames();
-    const gamesCount = games.length;
-    const newComments = games.filter(game => !storedGames.includes(game));
+    const teamCommentGames = games.filter(game => game.unread_team_comments).map(game => game.name);
+    const newComments = teamCommentGames.filter(game => !storedGames.includes(game));
 
     return {
         newCount: newComments.length,
-        allCount: gamesCount,
-        list: games,
+        allCount: teamCommentGames.length,
+        list: teamCommentGames,
     };
 };
 
@@ -137,43 +101,10 @@ const sendNotification = async (content = {}) => {
     }
 };
 
-const getLoginBody = async ({ user, password } = {}) => {
-    const settings = await getSettings();
-    const bodyValues = {
-        login: user || settings[SETTING_KEY_NICK],
-        password: password || settings[SETTING_KEY_PASSWORD],
-        logowanie: "zaloguj",
-    };
-    const formData = new FormData();
-
-    for (let param in bodyValues) {
-        formData.append(param, bodyValues[param]);
-    }
-
-    return new URLSearchParams(formData).toString();
-};
-
 const areCredentialsOk = async (user, password) => {
-    let isOk = false;
+    const gameData = await fetchNotifierData(user, password);
 
-    if (user && password) {
-        const loginBody = await getLoginBody({
-            user,
-            password,
-        });
-        const htmlResponse = await fetchHomePageWithLogin(loginBody, {
-            credentials: "omit",
-        });
-        isOk = htmlResponse.isUserLoggedIn();
-    }
-
-    return isOk;
-};
-
-const isLoggedAsUserFromSettings = async htmlResponse => {
-    const settings = await getSettings();
-
-    return settings[SETTING_KEY_NICK] === htmlResponse.getLoggedUserName();
+    return !!gameData.actual_games;
 };
 
 export {

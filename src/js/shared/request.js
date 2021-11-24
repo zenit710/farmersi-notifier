@@ -1,4 +1,9 @@
-const request = async (url, options = {}) => {
+export const METHOD = {
+    GET: "GET",
+    POST: "POST",
+};
+
+export const request = async (url, options = {}) => {
     let response = null;
 
     try {
@@ -16,8 +21,4 @@ const request = async (url, options = {}) => {
     }
 
     return response;
-};
-
-export {
-    request,
 };
