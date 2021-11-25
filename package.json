@@ -1,18 +1,20 @@
 {
   "name": "farmersi-notifier",
-  "version": "0.5.1",
-  "description": "Waiting games notifications for farmersi.pl",
+  "version": "0.6.0",
+  "description": "Farmersi.pl notifications",
   "private": true,
-  "dependencies": {},
+  "engines": {
+    "node": "^16.6.2"
+  },
   "devDependencies": {
     "cross-zip-cli": "^1.0.0",
     "css-loader": "^5.0.2",
     "eslint": "^7.20.0",
     "husky": "^5.0.9",
     "mkdirp": "^1.0.4",
-    "node-sass": "^5.0.0",
+    "node-sass": "^6.0.1",
     "sass": "^1.32.7",
-    "sass-loader": "^11.0.1",
+    "sass-loader": "^12.3.0",
     "style-loader": "^2.0.0",
     "stylelint": "^13.10.0",
     "stylelint-config-sass-guidelines": "^8.0.0",

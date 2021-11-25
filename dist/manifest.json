@@ -1,7 +1,7 @@
 {
   "name": "Farmersi Notifier",
-  "version": "0.5.1",
-  "description": "Waiting games notifications for farmersi.pl",
+  "version": "0.6.0",
+  "description": "Farmersi.pl notifications",
   "permissions": [
     "alarms",
     "notifications",
